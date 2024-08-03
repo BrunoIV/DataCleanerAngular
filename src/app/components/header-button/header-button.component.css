@@ -1,0 +1,19 @@
+:host {
+    width: 62px;
+    height: 72px;
+    text-align: center;
+    font-size: 12px;
+    float: left;
+    padding: 8px;
+}
+
+:host:hover {
+    background-color: #ddd;
+    border-radius: 5px;
+    cursor: pointer;
+}
+
+span {
+    font-size: 25px;
+    display: block;
+}
