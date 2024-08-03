@@ -31,13 +31,44 @@ export class AppComponent {
   }
 
   handleButtonClick(buttonId: string): void {
-    alert(`Button clicked: ${buttonId}`);
+    console.log(`Button clicked: ${buttonId}`);
+
+    const fileInput = document.createElement('input');
+    fileInput.type = 'file';
+    fileInput.style.display = 'none';
+
+    fileInput.addEventListener('change', (event: any) => {
+      this.onFileSelected(event);
+      document.body.removeChild(fileInput);
+    });
+
+    document.body.appendChild(fileInput);
+    fileInput.click();
   }
 
   getData(): void {
     this.http.get<any>('http://localhost:8080/getExampleData').subscribe((response) => {
       this.columnDefs = response.header;
       this.rowData = response.values;
+    });
+  }
+
+  onFileSelected(event: any) {
+    const selectedFile = event.target.files[0];
+    const formData = new FormData();
+    formData.append('file', selectedFile, selectedFile.name);
+
+    const upload$ = this.http.post('http://localhost:8080/upload', formData);
+
+    upload$.subscribe({
+      next: (response: any) => {
+        console.log(response);
+        this.columnDefs = response.header;
+      this.rowData = response.values;
+      },
+      error: (error: any) => {
+        console.log(error);
+      },
     });
   }
 }
