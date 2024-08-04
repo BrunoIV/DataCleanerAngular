@@ -29,17 +29,30 @@ export class AppComponent {
     console.log('Cell value changed', event);
 
   }
-
+  
   handleButtonClick(buttonId: string): void {
-    console.log(`Button clicked: ${buttonId}`);
+    if(buttonId.startsWith('import_')) {
+      this.selectFile(buttonId.replace('import_', ''));
+    } else {
+      alert(buttonId + ' Not implemented');
+    }
+  }
 
+  selectFile(format :string) {
     const fileInput = document.createElement('input');
     fileInput.type = 'file';
     fileInput.style.display = 'none';
+    fileInput.accept = '.' + format;
 
     fileInput.addEventListener('change', (event: any) => {
-      this.onFileSelected(event);
-      document.body.removeChild(fileInput);
+      const selectedFile = event.target.files[0];
+
+      // Check if the selected file is a CSV file
+     // if (selectedFile && selectedFile.type === 'text/' + format) {
+        
+        this.onFileSelected(event, format);
+        document.body.removeChild(fileInput);
+    
     });
 
     document.body.appendChild(fileInput);
@@ -47,24 +60,23 @@ export class AppComponent {
   }
 
   getData(): void {
-    this.http.get<any>('http://localhost:8080/getExampleData').subscribe((response) => {
+    this.http.get<any>('http://localhost:8080/import/getExampleData').subscribe((response) => {
       this.columnDefs = response.header;
       this.rowData = response.values;
     });
   }
 
-  onFileSelected(event: any) {
+  onFileSelected(event: any, format :string) {
     const selectedFile = event.target.files[0];
     const formData = new FormData();
     formData.append('file', selectedFile, selectedFile.name);
 
-    const upload$ = this.http.post('http://localhost:8080/upload', formData);
+    const upload$ = this.http.post('http://localhost:8080/import/' + format, formData);
 
     upload$.subscribe({
       next: (response: any) => {
-        console.log(response);
         this.columnDefs = response.header;
-      this.rowData = response.values;
+        this.rowData = response.values;
       },
       error: (error: any) => {
         console.log(error);

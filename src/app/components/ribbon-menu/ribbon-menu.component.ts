@@ -20,10 +20,6 @@ export class RibbonMenuComponent {
         text: 'CSV',
         id: 'import_csv'
       },{
-        icon: 'fa-brands fa-html5',
-        text: 'HTML',
-        id: 'import_html'
-      },{
         icon: 'fa-solid fa-code',
         text: 'XML',
         id: 'import_xml'
@@ -31,10 +27,6 @@ export class RibbonMenuComponent {
         icon: 'fa-solid fa-file',
         text: 'JSON',
         id: 'import_json'
-      },{
-        icon: 'fa-solid fa-database',
-        text: 'SQL',
-        id: 'import_sqll'
       }]
     },{
       title: 'Export',
