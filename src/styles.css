@@ -9,3 +9,8 @@ body {
 html, body {
     height: 100%;
 }
+
+
+.bg-selected {
+    background-color: #e7f2ec !important;
+}

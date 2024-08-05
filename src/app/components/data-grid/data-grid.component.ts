@@ -16,8 +16,8 @@ export class DataGridComponent {
   columnDefs: ColDef[] = [];
   rowData : any[] = [];
   defaultColDef = {
-    sortable: true,
-    filter: true
+    sortable: false,
+    filter: false
   };
 
   gridOptions = {
@@ -28,16 +28,44 @@ export class DataGridComponent {
         const fromIndex = this.rowData.indexOf(movingData);
         const toIndex = this.rowData.indexOf(overData);
       
-        // Mover la fila en el array rowData
+        // Move row
         this.rowData.splice(fromIndex, 1);
         this.rowData.splice(toIndex, 0, movingData);
       
-        // Actualizar rowData
+        // Update rowData
         this.rowData = [...this.rowData];
+    },
+
+    onFirstDataRendered: (params: any) =>{
+      const rows = document.querySelectorAll('.ag-cell');
+      const headers = document.querySelectorAll('.ag-header-cell');
+
+      //Deselect all columns when click on cell
+      rows.forEach(row => {
+        row.addEventListener('click', function(event){
+          rows.forEach(r => {
+            r.classList.remove('bg-selected');
+          });
+        })
+      });
+     
+      //Click over the header
+      headers.forEach(v => {
+        v.addEventListener('click', function(event: any){
+          rows.forEach(row => {
+
+            //Add a background en each cell of the same index
+            //Select multiple columns using "ctrl"
+            if(v.ariaColIndex == row.ariaColIndex) {
+              row.classList.add('bg-selected');
+            } else if(!event.ctrlKey) {
+              row.classList.remove('bg-selected');
+            }
+          });
+        });
+      });
     }
   };
-
-
 
   constructor(private http: HttpClient) {
     this.loadGrid();
