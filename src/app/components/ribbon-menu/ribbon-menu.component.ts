@@ -11,7 +11,7 @@ import { CommonModule } from '@angular/common';
 })
 export class RibbonMenuComponent {
   public menus = [{
-    id: 'file',
+    id: 'menu_file',
     title: 'File',
     groups: [{
       title: 'Import',
@@ -53,7 +53,7 @@ export class RibbonMenuComponent {
       }]
     }]
   },{
-    id: 'structure',
+    id: 'menu_structure',
     title: 'Structure',
     groups: [{
       title: 'Add column',

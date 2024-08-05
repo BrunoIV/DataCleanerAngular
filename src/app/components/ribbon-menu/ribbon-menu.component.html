@@ -1,7 +1,7 @@
 <div id="ribbon_bar">
     <ng-container *ngFor="let menu of menus;let i = index">
-      <input type="radio" name="menu" id="menu_{{menu.id}}" [checked]="i === 0">
-      <label for="menu_{{menu.id}}">{{menu.title}}</label>
+      <input type="radio" name="menu" id="{{menu.id}}" [checked]="i === 0">
+      <label (click)="onButtonClick(menu.id)" for="{{menu.id}}">{{menu.title}}</label>
       <section>
         <main *ngFor="let group of menu.groups;">
           <div>

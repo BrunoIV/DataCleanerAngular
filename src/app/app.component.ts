@@ -1,37 +1,38 @@
-import { Component } from '@angular/core';
+import { Component, ViewChild } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterOutlet } from '@angular/router';
 import { RibbonMenuComponent } from './components/ribbon-menu/ribbon-menu.component';
-import { AgGridModule } from 'ag-grid-angular';
-import { ColDef } from 'ag-grid-community';
 import { HttpClient, HttpClientModule } from '@angular/common/http';
+import { DataGridComponent } from './components/data-grid/data-grid.component';
 
 @Component({
   selector: 'app-root',
   standalone: true,
-  imports: [CommonModule, RouterOutlet, HttpClientModule, AgGridModule, RibbonMenuComponent],
+  imports: [CommonModule, RouterOutlet, HttpClientModule, DataGridComponent, RibbonMenuComponent],
   templateUrl: './app.component.html',
   styleUrl: './app.component.css'
 })
 export class AppComponent {
+  @ViewChild(DataGridComponent) private gridComponent!: DataGridComponent;
+  private currentTab = '';
 
-  constructor(private http: HttpClient) {
-    this.getData();
-  }
+  constructor(private http: HttpClient) {}
 
-  
-  columnDefs: ColDef[] = [];
+  handleTab(tabId: string) :void {
+    this.currentTab = tabId;
 
-  // Datos de las filas
-  rowData : any[] = [];
-
-  onCellValueChanged(event: any) {
-    console.log('Cell value changed', event);
+    if(tabId == 'menu_structure') {
+      this.gridComponent.loadGridStructure();
+    }else {
+      this.gridComponent.loadGrid();
+    }
 
   }
   
   handleButtonClick(buttonId: string): void {
-    if(buttonId.startsWith('import_')) {
+    if(buttonId.startsWith('menu_')) {
+      this.handleTab(buttonId);
+    } else if(buttonId.startsWith('import_')) {
       this.selectFile(buttonId.replace('import_', ''));
     } else {
       alert(buttonId + ' Not implemented');
@@ -59,13 +60,6 @@ export class AppComponent {
     fileInput.click();
   }
 
-  getData(): void {
-    this.http.get<any>('http://localhost:8080/import/getExampleData').subscribe((response) => {
-      this.columnDefs = response.header;
-      this.rowData = response.values;
-    });
-  }
-
   onFileSelected(event: any, format :string) {
     const selectedFile = event.target.files[0];
     const formData = new FormData();
@@ -75,8 +69,7 @@ export class AppComponent {
 
     upload$.subscribe({
       next: (response: any) => {
-        this.columnDefs = response.header;
-        this.rowData = response.values;
+        this.gridComponent.loadGrid();
       },
       error: (error: any) => {
         console.log(error);

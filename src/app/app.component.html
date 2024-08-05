@@ -1,13 +1,6 @@
 <div class="h-100 w-100 d-flex flex-column">
   <ribbon-menu (buttonClick)="handleButtonClick($event)"></ribbon-menu>
   <div class="flex-grow-1">
-    <ag-grid-angular
-    style="width: 100%; height: 100%;"
-    class="ag-theme-alpine"
-    [rowData]="rowData"
-    [columnDefs]="columnDefs"
-    [pagination]="true"
-    (cellValueChanged)="onCellValueChanged($event)">
-  </ag-grid-angular>
+    <data-grid></data-grid>
   </div>
 </div>
