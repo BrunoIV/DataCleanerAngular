@@ -15,6 +15,8 @@ export class DataGridComponent {
   //Grid config
   columnDefs: ColDef[] = [];
   rowData : any[] = [];
+  private selectedColumns : number[] = [];
+  private selectedRows : number[] = [];
   defaultColDef = {
     sortable: false,
     filter: false
@@ -36,39 +38,111 @@ export class DataGridComponent {
         this.rowData = [...this.rowData];
     },
 
-    onFirstDataRendered: (params: any) =>{
-      const rows = document.querySelectorAll('.ag-cell');
-      const headers = document.querySelectorAll('.ag-header-cell');
 
-      //Deselect all columns when click on cell
-      rows.forEach(row => {
-        row.addEventListener('click', function(event){
-          rows.forEach(r => {
-            r.classList.remove('bg-selected');
-          });
-        })
-      });
-     
-      //Click over the header
-      headers.forEach(v => {
-        v.addEventListener('click', function(event: any){
-          rows.forEach(row => {
-
-            //Add a background en each cell of the same index
-            //Select multiple columns using "ctrl"
-            if(v.ariaColIndex == row.ariaColIndex) {
-              row.classList.add('bg-selected');
-            } else if(!event.ctrlKey) {
-              row.classList.remove('bg-selected');
-            }
-          });
-        });
-      });
+    onModelUpdated: (params: any) =>{
+      this.addEvents();
     }
   };
 
   constructor(private http: HttpClient) {
     this.loadGrid();
+  }
+
+  addEvents() {
+    const cells = document.querySelectorAll('.ag-cell');
+    const _this = this;
+
+    //Deselect all columns when click on cell
+    cells.forEach(cell => {
+      const fakeHeader = cell.ariaColIndex === "1";
+
+      cell.addEventListener('click', function(event: any){
+
+        //If is a regular column
+        //or a "fake header" but there's a column selected
+        //or there's a row selected and "ctrl" is not pressed
+        if(!fakeHeader || _this.selectedColumns.length || (_this.selectedRows.length && !event.ctrlKey)) {
+          _this.deselectAll();
+        }
+
+        if(fakeHeader) {
+          _this.selectRow(parseInt(cell.innerHTML));
+        }
+      });
+    });
+
+
+    //Click over the header
+    const headers = document.querySelectorAll('.ag-header-cell');
+    headers.forEach(header => {
+      header.addEventListener('click', function(event: any){
+        const fakeHeader = header.ariaColIndex === "1";
+
+        //If click in the "fake header" of auto-incremental column
+        //or there's a row selected
+        //or there's a column selected and "ctrl" is not pressed
+        if(fakeHeader || _this.selectedRows.length || (_this.selectedColumns.length && !event.ctrlKey)) {
+          _this.deselectAll();
+        }
+
+        if(header.ariaColIndex != null) {
+          _this.selectColumn(header.ariaColIndex);
+        }
+      });
+    });
+  }
+
+  /**
+   * Removes the background of all cells of the grid and empty the list of selected columns and rows
+   */
+  deselectAll() {
+    const cells = document.querySelectorAll('.ag-cell');
+    cells.forEach(cell => {
+      cell.classList.remove('bg-selected');
+    });
+
+    this.selectedColumns = [];
+    this.selectedRows = [];
+  }
+
+  /**
+   * Selects all cells of the row
+   * @param nRow 
+   */
+  selectRow(nRow: number) {
+
+    //First column is zero
+    nRow--;
+    this.selectedRows.push(nRow);
+    var container = document.querySelector('.ag-center-cols-container');
+
+    if(container != null && nRow >= 0 && nRow < container.children.length) {
+      const cells = container.children[nRow].querySelectorAll('.ag-cell');
+
+      cells.forEach(cell => {
+        cell.classList.add('bg-selected');
+      });
+    }
+  }
+
+  /**
+   * Selects all the cells of the column
+   * @param colIndex - String with col index (starts in one)
+   */
+  selectColumn(colIndex: string) {
+    const cells = document.querySelectorAll('.ag-cell');
+
+    cells.forEach(cell => {
+      //Add a background en each cell of the same index
+      if(colIndex != null && colIndex == cell.ariaColIndex) {
+        cell.classList.add('bg-selected');
+
+        const index = parseInt(colIndex);
+        if(!this.selectedColumns.includes(index)) {
+          this.selectedColumns.push(index);
+        }
+      }
+    });
   }
 
   /**

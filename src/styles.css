@@ -14,3 +14,8 @@ html, body {
 .bg-selected {
     background-color: #e7f2ec !important;
 }
+
+.bg-fake-header {
+    background-color: #f8f8f8 !important;
+    border-right: 1px solid #dde2eb !important;
+}
