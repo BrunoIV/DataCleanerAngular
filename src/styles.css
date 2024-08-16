@@ -11,10 +11,28 @@ html, body {
 }
 
 
-.bg-selected {
-    background-color: #e7f2ec !important;
+
+/*Header and "fake header" when selects a cell, row or column */
+.bg-selected.bg-fake-header, .bg-range-selected.bg-fake-header, .bg-range-selected.ag-header-cell {
+    background-color: #caead8 !important;
+    color: #107c41;
+    font-weight: bold;
 }
 
+.ag-cell{
+    border: 2px solid transparent !important;
+}
+
+.ag-cell.bg-selected:not(.bg-fake-header) {
+    border: 2px solid #107c41 !important;
+}
+
+/* Cell when selects a column or row */
+.ag-cell.bg-range-selected {
+    background: #e7f2ec !important;
+}
+
+/* Transform regular cells into something that looks like a "header" */
 .bg-fake-header {
     background-color: #f8f8f8 !important;
     border-right: 1px solid #dde2eb !important;

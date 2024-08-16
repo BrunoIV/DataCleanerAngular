@@ -20,10 +20,6 @@ export class RibbonMenuComponent {
         text: 'CSV',
         id: 'import_csv'
       },{
-        icon: 'code',
-        text: 'XML',
-        id: 'import_xml'
-      },{
         icon: 'data_object',
         text: 'JSON',
         id: 'import_json'
@@ -39,59 +35,63 @@ export class RibbonMenuComponent {
         text: 'HTML',
         id: 'export_html'
       },{
-        icon: 'code',
-        text: 'XML',
-        id: 'export_xml'
-      },{
         icon: 'data_object',
         text: 'JSON',
         id: 'export_json'
-      },{
-        icon: 'database',
-        text: 'SQL',
-        id: 'export_sql'
       }]
     }]
   },{
     id: 'menu_structure',
     title: 'Structure',
     groups: [{
-      title: 'Add column',
+      title: 'Column',
       items: [{
-        icon: 'arrow_back_ios',
+        icon: 'keyboard_double_arrow_left',
         text: 'Start',
         id: 'add_column_start'
       },{
-        icon: 'arrow_forward_ios',
+        icon: 'keyboard_arrow_left',
         text: 'Left',
         id: 'add_column_left'
       },{
-        icon: 'keyboard_double_arrow_left',
+        icon: 'keyboard_arrow_right',
         text: 'Right',
         id: 'add_column_right'
       },{
-        icon: 'double_arrow',
+        icon: 'keyboard_double_arrow_right',
         text: 'End',
         id: 'add_column_end'
+      },{
+        icon: 'delete',
+        text: 'Delete',
+        id: 'delete_column'
+      },{
+        icon: 'join',
+        text: 'Join',
+        id: 'join_column'
       }]
     },{
-      title: 'Add row',
+      title: 'Row',
       items: [{
-        icon: 'fa-solid fa-angles-up',
+        icon: 'keyboard_double_arrow_up',
         text: 'Start',
         id: 'add_row_start'
       },{
-        icon: 'fa-solid fa-chevron-up',
+        icon: 'keyboard_arrow_up',
         text: 'Up',
         id: 'add_row_up'
       },{
-        icon: 'fa-solid fa-chevron-down',
+        icon: 'keyboard_arrow_down',
         text: 'Down',
         id: 'add_row_down'
       },{
-        icon: 'fa-solid fa-angles-down',
+        icon: 'keyboard_double_arrow_down',
         text: 'End',
         id: 'add_row_end'
+      },{
+        icon: 'delete',
+        text: 'Delete',
+        id: 'delete_row'
       }]
     }]
   },{
@@ -134,6 +134,32 @@ export class RibbonMenuComponent {
         icon: 'serif',
         text: 'AlphaNum',
         id: 'validation_alfanumeric'
+      }]
+    },{
+      title: 'Fill',
+      items: [{
+        icon: 'format_list_numbered',
+        text: 'Incremental',
+        id: 'add_row_start'
+      }]
+    }]
+  },{
+    id: 'menu_chart',
+    title: 'Charts',
+    groups: [{
+      title: 'Charts',
+      items: [{
+        icon: 'pie_chart',
+        text: 'Pie',
+        id: 'chart_pie'
+      },{
+        icon: 'finance',
+        text: 'Bars',
+        id: 'chart_bars'
+      },{
+        icon: 'show_chart',
+        text: 'Line',
+        id: 'chart_line'
       }]
     }]
   }];

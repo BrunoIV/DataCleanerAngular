@@ -14,30 +14,47 @@ import { DataGridComponent } from './components/data-grid/data-grid.component';
 })
 export class AppComponent {
   @ViewChild(DataGridComponent) private gridComponent!: DataGridComponent;
-  private currentTab = '';
 
   constructor(private http: HttpClient) {}
-
-  handleTab(tabId: string) :void {
-    this.currentTab = tabId;
-
-    if(tabId == 'menu_structure') {
-      this.gridComponent.loadGridStructure();
-    }else {
-      this.gridComponent.loadGrid();
-    }
-
-  }
   
+  private actionMap: { [key: string]: Function } = {
+    import_: (id: string) => this.selectFile(id),
+    export_: (format: string) => window.open('http://localhost:8080/file/export/' + format, '_blank'),
+
+    //Structure
+    add_column_start: () => this.gridComponent.addColumnStart(),
+    add_column_left: () => this.gridComponent.addColumnLeft(),
+    add_column_right: () => this.gridComponent.addColumnRight(),
+    add_column_end: () => this.gridComponent.addColumnEnd()
+  };
+
+
+
   handleButtonClick(buttonId: string): void {
-    if(buttonId.startsWith('menu_')) {
-      this.handleTab(buttonId);
-    } else if(buttonId.startsWith('import_')) {
+    for (let key in this.actionMap) {
+      if (buttonId.startsWith(key)) {
+        const parameter = buttonId.replace(key, '');
+        this.actionMap[key](parameter);
+        return;
+      }
+    }
+    alert(buttonId + ' Not implemented');
+  }
+/*
+  handleButtonClick(buttonId: string): void {
+    if(buttonId.startsWith('import_')) {
       this.selectFile(buttonId.replace('import_', ''));
+    } else if(buttonId.startsWith('export_')) {
+      const format = buttonId.replace('export_', '');
+      window.open('http://localhost:8080/file/export/' + format, '_blank');
+    } else if(buttonId === 'add_column_start') {
+      this.gridComponent.addColumnStart();
+    } else if(buttonId === 'add_column_end') {
+      this.gridComponent.addColumnEnd();
     } else {
       alert(buttonId + ' Not implemented');
     }
-  }
+  }*/
 
   selectFile(format :string) {
     const fileInput = document.createElement('input');
@@ -65,7 +82,7 @@ export class AppComponent {
     const formData = new FormData();
     formData.append('file', selectedFile, selectedFile.name);
 
-    const upload$ = this.http.post('http://localhost:8080/import/' + format, formData);
+    const upload$ = this.http.post('http://localhost:8080/file/import/' + format, formData);
 
     upload$.subscribe({
       next: (response: any) => {
