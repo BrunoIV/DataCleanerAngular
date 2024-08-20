@@ -1,4 +1,4 @@
-import { HttpClient } from '@angular/common/http';
+import { HttpClient, HttpParams } from '@angular/common/http';
 import { Component } from '@angular/core';
 import { ColDef } from 'ag-grid-community';
 import { AgGridModule } from 'ag-grid-angular';
@@ -15,8 +15,13 @@ export class DataGridComponent {
   //Grid config
   columnDefs: ColDef[] = [];
   rowData : any[] = [];
-   selectedColumns : number[] = [];
-   selectedRows : number[] = [];
+  validationErrors : any[] = [];
+  
+  gridApi: any;
+  gridColumnApi: any;
+
+  private selectedColumns : number[] = [];
+  private selectedRows : number[] = [];
   defaultColDef = {
     sortable: false,
     filter: false
@@ -41,11 +46,35 @@ export class DataGridComponent {
 
     onModelUpdated: (params: any) =>{
       this.addEvents();
+      this.showErrors();
     }
   };
 
   constructor(private http: HttpClient) {
     this.loadGrid();
+  }
+
+  onGridReady(params: any) {
+    this.gridApi = params.api;
+    this.gridColumnApi = params.columnApi;
+  }
+
+  showErrors() {
+    const cells = document.querySelectorAll('.ag-cell');
+
+    let rowNumber = 0;
+    cells.forEach(cell => {
+      const fakeHeader =  cell.ariaColIndex === "1";
+      if(fakeHeader) {
+
+        if(this.validationErrors[rowNumber] === undefined) {
+          cell.classList.remove('validation_error');
+        } else {
+          cell.classList.add('validation_error');
+        }
+        rowNumber++;
+      }
+    });
   }
 
   addEvents() {
@@ -219,57 +248,134 @@ export class DataGridComponent {
     this.http.get<any>('http://localhost:8080/file/getExampleData').subscribe((response) => {
       this.columnDefs = response.header;
       this.rowData = response.values;
+      this.validationErrors = response.validationErrors;
     });
   }
 
   /**
-   * Persists the modifications in of the column in the server
+   * Persists the modifications 
    * @param event 
    */
   onCellValueChanged(event: any) {
-    //Column info + position
-    let body = {
+    const body = {
       rowIndex: event.rowIndex,
-      headerName: event.data.headerName,
-      field: event.data.field,
-      editable: event.data.editable
+      headerName: event.column.colId,
+      value: event.value
     }
 
-    let req= this.http.post<any>('http://localhost:8080/structure/modifyColumn', body);
-
-    req.subscribe({
-      error: (error: any) => {
-        console.log(error);
-      },
-    });
+    this.sendPostJson('data/modifyValue', body);
   }
+
+
+  addRowBegin() {
+    this.addRowAtPosition(0);
+  }
+
+  addRowEnd() {
+    this.addRowAtPosition(this.rowData.length);
+  }
+
+  addRowUp() {
+    const selectedItems = this.selectedRows.length;
+    if(selectedItems === 0) {
+      alert('Please, select a row');
+    } else {
+      this.addRowAtPosition(this.selectedRows[selectedItems - 1]);
+    }
+  }
+
+  addRowDown() {
+    const selectedItems = this.selectedRows.length;
+    if(selectedItems === 0) {
+      alert('Please, select a row');
+    } else {
+      this.addRowAtPosition(this.selectedRows[selectedItems - 1] + 1);
+    }
+  }
+
 
 
   addColumnStart() {
-    const newColDef: ColDef = { headerName: "a", field: "aa" };
-    var current = this.columnDefs;
-    current.splice(0, 0, newColDef)
-    this.columnDefs = [...current];
+    //Column 0 is the fake header
+    this.addColumnAtPosition(1);
   }
 
   addColumnEnd() {
-    const newColDef: ColDef = { headerName: "a", field: "aa" };
-    var current = this.columnDefs;
-    current.push(newColDef);
-    this.columnDefs = [...current];
+    this.addColumnAtPosition(this.columnDefs.length);
   }
 
   addColumnLeft() {
-    const newColDef: ColDef = { headerName: "a", field: "aa" };
-    var current = this.columnDefs;
-    current.push(newColDef);
-    this.columnDefs = [...current];
+    const selected = this.selectedColumns.length;
+    if(selected === 0) {
+      alert('Please, select a column');
+    } else {
+      this.addColumnAtPosition(this.selectedColumns[selected - 1]);
+    }
   }
 
   addColumnRight() {
-    const newColDef: ColDef = { headerName: "a", field: "aa" };
-    var current = this.columnDefs;
-    current.push(newColDef);
-    this.columnDefs = [...current];
+    const selectedItems = this.selectedColumns.length;
+    if(selectedItems === 0) {
+      alert('Please, select a column');
+    } else {
+      this.addColumnAtPosition(this.selectedColumns[selectedItems - 1] + 1);
+    }
   }
+
+  addColumnAtPosition(position: number) {
+    let name = prompt('Column name?');
+
+    if(name !== null && name.trim() !== '') {
+      this.sendPost('structure/addColumn', {name: name, position: position});
+    }
+  }
+
+  addRowAtPosition(position: number) {
+    this.sendPost('structure/addRow', {position: position});
+  }
+
+  getSelectedColumns() :number[] {
+    return this.selectedColumns;
+  }
+
+  getSelectedRows() {
+    return this.selectRows;
+  }
+
+  sendPost(url: string, params: any) :void {
+    let body = new HttpParams();
+
+    Object.keys(params).forEach(key => {
+      body = body.set(key, params[key].toString());
+    });
+
+    const req = this.http.post<any>('http://localhost:8080/' + url, body);
+
+    req.subscribe({
+      next: (response: any) => {
+        this.columnDefs = response.header;
+        this.rowData = response.values;
+        this.validationErrors = response.validationErrors;
+      },
+      error: (error: any) => {
+        console.log(error);
+      }
+    });
+  }
+
+  sendPostJson(url: string, params: any) :void {
+    const req = this.http.post<any>('http://localhost:8080/' + url, params);
+
+    req.subscribe({
+      next: (response: any) => {
+        this.columnDefs = response.header;
+        this.rowData = response.values;
+        this.validationErrors = response.validationErrors;
+      },
+      error: (error: any) => {
+        console.log(error);
+      }
+    });
+  }
+
 }

@@ -25,7 +25,17 @@ export class AppComponent {
     add_column_start: () => this.gridComponent.addColumnStart(),
     add_column_left: () => this.gridComponent.addColumnLeft(),
     add_column_right: () => this.gridComponent.addColumnRight(),
-    add_column_end: () => this.gridComponent.addColumnEnd()
+    add_column_end: () => this.gridComponent.addColumnEnd(),
+
+    add_row_begin: () => this.gridComponent.addRowBegin(),
+    add_row_up: () => this.gridComponent.addRowUp(),
+    add_row_down: () => this.gridComponent.addRowDown(),
+    add_row_end: () => this.gridComponent.addRowEnd(),
+    
+
+    //Data
+    normalization_: (fn: string) => this.normalize(fn),
+    validation_: (fn: string) => this.validate(fn),
   };
 
 
@@ -40,21 +50,43 @@ export class AppComponent {
     }
     alert(buttonId + ' Not implemented');
   }
-/*
-  handleButtonClick(buttonId: string): void {
-    if(buttonId.startsWith('import_')) {
-      this.selectFile(buttonId.replace('import_', ''));
-    } else if(buttonId.startsWith('export_')) {
-      const format = buttonId.replace('export_', '');
-      window.open('http://localhost:8080/file/export/' + format, '_blank');
-    } else if(buttonId === 'add_column_start') {
-      this.gridComponent.addColumnStart();
-    } else if(buttonId === 'add_column_end') {
-      this.gridComponent.addColumnEnd();
-    } else {
-      alert(buttonId + ' Not implemented');
-    }
-  }*/
+
+  validate(functionName: string): void {
+    const columns:number[] = this.gridComponent.getSelectedColumns();
+
+    const formData = new FormData();
+    formData.append('columns', columns.join(','));
+    formData.append('functionName', 'validate_' + functionName);
+    const upload$ = this.http.post('http://localhost:8080/data/validate', formData);
+
+    upload$.subscribe({
+      next: (response: any) => {
+        this.gridComponent.loadGrid();
+      },
+      error: (error: any) => {
+        console.log(error);
+      },
+    });
+  }
+
+  normalize(functionName: string): void {
+    const columns:number[] = this.gridComponent.getSelectedColumns();
+
+    const formData = new FormData();
+    formData.append('columns', columns.join(','));
+    formData.append('functionName', functionName);
+    const upload$ = this.http.post('http://localhost:8080/data/normalize', formData);
+
+    upload$.subscribe({
+      next: (response: any) => {
+        this.gridComponent.loadGrid();
+      },
+      error: (error: any) => {
+        console.log(error);
+      },
+    });
+  }
+
 
   selectFile(format :string) {
     const fileInput = document.createElement('input');

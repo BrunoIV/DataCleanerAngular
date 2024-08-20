@@ -6,5 +6,6 @@ class="ag-theme-alpine"
 [columnDefs]="columnDefs"
 [pagination]="true"
 [gridOptions]="gridOptions"
+(gridReady)="onGridReady($event)"
 (cellValueChanged)="onCellValueChanged($event)">
 </ag-grid-angular>

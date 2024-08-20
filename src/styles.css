@@ -37,3 +37,8 @@ html, body {
     background-color: #f8f8f8 !important;
     border-right: 1px solid #dde2eb !important;
 }
+
+
+.validation_error {
+    background-color: red !important;
+}
