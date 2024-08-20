@@ -75,7 +75,7 @@ export class RibbonMenuComponent {
       items: [{
         icon: 'keyboard_double_arrow_up',
         text: 'Start',
-        id: 'add_row_start'
+        id: 'add_row_begin'
       },{
         icon: 'keyboard_arrow_up',
         text: 'Up',
@@ -114,7 +114,7 @@ export class RibbonMenuComponent {
       },{
         icon: 'match_case',
         text: 'Capitalize',
-        id: 'normalization_captalize'
+        id: 'normalization_capitalize'
       }]
     },{
       title: 'Validation',
@@ -141,6 +141,10 @@ export class RibbonMenuComponent {
         icon: 'format_list_numbered',
         text: 'Incremental',
         id: 'add_row_start'
+      },{
+        icon: 'radio_button_checked',
+        text: 'Fixed value',
+        id: 'fill_fixed_value'
       }]
     }]
   },{
