@@ -77,6 +77,32 @@ export class DataGridComponent {
     });
   }
 
+  deleteRow() {
+    const selected :number[] = this.getSelectedRows();
+
+    if(selected.length === 0) {
+      alert('Please, select at least one row');
+      return;
+    }
+
+    if (confirm('Are you sure you want to delete selected rows?')) {
+      this.sendPost('structure/deleteRows', { indexes: selected.join(',')})
+    }
+  }
+
+  deleteColumn() {
+    const selected :number[] = this.getSelectedColumns();
+
+    if(selected.length === 0) {
+      alert('Please, select at least one column');
+      return;
+    }
+    
+    if (confirm('Are you sure you want to delete selected columns?')) {
+      this.sendPost('structure/deleteColumns', { indexes: selected.join(',')})
+    }
+  }
+
   addEvents() {
     const cells = document.querySelectorAll('.ag-cell');
     const headers = document.querySelectorAll('.ag-header-cell');
@@ -338,8 +364,8 @@ export class DataGridComponent {
     return this.selectedColumns;
   }
 
-  getSelectedRows() {
-    return this.selectRows;
+  getSelectedRows() :number[] {
+    return this.selectedRows;
   }
 
   sendPost(url: string, params: any) :void {

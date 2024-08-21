@@ -26,11 +26,13 @@ export class AppComponent {
     add_column_left: () => this.gridComponent.addColumnLeft(),
     add_column_right: () => this.gridComponent.addColumnRight(),
     add_column_end: () => this.gridComponent.addColumnEnd(),
+    delete_column: () => this.gridComponent.deleteColumn(),
 
     add_row_begin: () => this.gridComponent.addRowBegin(),
     add_row_up: () => this.gridComponent.addRowUp(),
     add_row_down: () => this.gridComponent.addRowDown(),
     add_row_end: () => this.gridComponent.addRowEnd(),
+    delete_row: () => this.gridComponent.deleteRow(),
     
 
     //Data
