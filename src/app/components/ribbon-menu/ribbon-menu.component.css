@@ -1,12 +1,12 @@
 #ribbon_bar {
-    background-color: #2b589b;
-    line-height: 36px;
+    background-color: #f5f5f5;
+    line-height: 30px;
     position: relative;
-    height: 136px;
+    height: 150px;
 }
 
 /* Icon's container */
-#ribbon_bar section > main > div {
+#ribbon_bar section main > div {
     overflow: hidden;
 }
 
@@ -17,20 +17,23 @@
 }
 
 #ribbon_bar label {
-    color: #fff;
     padding: 0 10px;
+    border-bottom: 2px solid transparent;
+    margin-right: 5px;
 }
 
+#ribbon_bar > :nth-child(2) {
+    margin-left: 10px;
+}
+
+
 #ribbon_bar label:hover {
-    background-color: #bbb;
-    color: #000;
+    border-color: var(--border-color);
 }
 
 #ribbon_bar input[type=radio]:checked + label {
-    background-color: #f3f3f3;
-    color: #2b589b;
+    border-color: var(--accent-bg-color);
 }
-
 
 
 
@@ -39,25 +42,32 @@
     height: 100px;
     width: 100%;
     position: absolute;
-    top: 36px;
+    top: 30px;
     display: none;
-    background-color: #f3f3f3;
-    padding: 4px;
+    padding: 8px 10px;
 }
 
-#ribbon_bar section > main {
+#ribbon_bar section > div {
+    background-color: #fff;
+    box-shadow: rgba(149, 157, 165, 0.2) 0px 8px 24px;
+    border-radius: 10px;
+}
+
+#ribbon_bar section main {
     height: 96px;
     display: inline-block;
-    border-right: 1px solid #ccc;
+    border-right: 1px solid var(--border-color);
+    margin: 4px 0;
+    padding: 0 8px;
 }
 
 #ribbon_bar section footer {
-    height: 24px;
-    line-height: 24px;
+    height: 20px;
+    line-height: 20px;
     width: 100%;
     display: block;
     text-align: center;
-    font-size: 12px;
+    font-size: 10px;
 }
 
 #ribbon_bar input[type=radio]:checked + label + section {

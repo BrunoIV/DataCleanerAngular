@@ -1,0 +1,82 @@
+
+
+
+#tab_files ul { 
+    margin: 0;
+    padding: 10px 5px;
+}
+
+#tab_files li {
+    list-style-type: none;
+    line-height: 30px;
+    border-left: 4px solid transparent;
+}
+
+#tab_files li span {
+    line-height: 30px;
+    float: left;
+}
+
+#tab_files li.selected {
+    border-color: var(--accent-bg-color);
+}
+
+#tab_files button {
+    background: transparent;
+    border: 0;
+    line-height: 36px;
+    height: 36px;
+    padding: 0 5px;
+}
+
+#tab_files button span {
+    font-size: 20px;
+    line-height: 36px;
+    height: 36px;
+}
+
+#tab_files header {
+    /*background-color: var(--accent-bg-color);*/
+    line-height: 36px;
+    height: 36px;
+}
+
+#side_tabs {
+    height: 100%;
+    float: left;
+    border-top: 1px solid var(--border-color);
+    width: 36px;
+    background: linear-gradient(to right, var(--panel-bg-color) calc(100% - 1px), var(--border-color) 1px);
+}
+
+#side_tabs span {
+    width: 36px;
+    line-height: 36px;
+    text-align: center;
+    font-size: 18px;
+    border: 1px solid transparent;
+    border-right: 1px solid var(--border-color);
+}
+
+#side_tabs span.active {
+    border-right: 1px solid #fff;
+    background: #fff;
+    border-top: 1px solid var(--border-color);
+    border-bottom: 1px solid var(--border-color);
+}
+
+#side_tabs span:hover {
+    background-color: red;
+}
+
+.side_panel {
+    width: 250px;
+    border-top: 1px solid var(--border-color);
+    padding: 10px;
+    float: left;
+}
+
+.side_panel h1 {
+    font-size: 18px;
+    font-weight: 300;
+}

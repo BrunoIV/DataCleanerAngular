@@ -2,24 +2,34 @@ import { Component, ViewChild } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterOutlet } from '@angular/router';
 import { RibbonMenuComponent } from './components/ribbon-menu/ribbon-menu.component';
-import { HttpClient, HttpClientModule } from '@angular/common/http';
+import { HttpClient, HttpClientModule, HttpParams } from '@angular/common/http';
 import { DataGridComponent } from './components/data-grid/data-grid.component';
+import { SidebarComponent } from './components/sidebar/sidebar.component';
 
 @Component({
   selector: 'app-root',
   standalone: true,
-  imports: [CommonModule, RouterOutlet, HttpClientModule, DataGridComponent, RibbonMenuComponent],
+  imports: [CommonModule, RouterOutlet, HttpClientModule, DataGridComponent, SidebarComponent, RibbonMenuComponent],
   templateUrl: './app.component.html',
   styleUrl: './app.component.css'
 })
 export class AppComponent {
   @ViewChild(DataGridComponent) private gridComponent!: DataGridComponent;
 
-  constructor(private http: HttpClient) {}
+  private selectedFile: number = 0;
+
+  constructor(private http: HttpClient) {
+  }
+
+  loadFile(id: number) {
+    this.gridComponent.loadGrid(id);
+    this.selectedFile = id;
+  }
   
   private actionMap: { [key: string]: Function } = {
     import_: (id: string) => this.selectFile(id),
     export_: (format: string) => window.open('http://localhost:8080/file/export/' + format, '_blank'),
+    
 
     //Structure
     add_column_start: () => this.gridComponent.addColumnStart(),
@@ -39,6 +49,27 @@ export class AppComponent {
     normalization_: (fn: string) => this.normalize(fn),
     validation_: (fn: string) => this.validate(fn),
   };
+
+
+  sendPost(url: string, params: any, callback: Function = function(){}) :void {
+    let body = new HttpParams();
+
+    Object.keys(params).forEach(key => {
+      body = body.set(key, params[key].toString());
+    });
+
+    const req = this.http.post<any>('http://localhost:8080/' + url, body);
+
+    req.subscribe({
+      next: (response: any) => {
+        callback(response);
+      },
+      error: (error: any) => {
+        console.log(error);
+      }
+    });
+  }
+
 
 
 
@@ -63,7 +94,7 @@ export class AppComponent {
 
     upload$.subscribe({
       next: (response: any) => {
-        this.gridComponent.loadGrid();
+        this.gridComponent.loadGrid(this.selectedFile);
       },
       error: (error: any) => {
         console.log(error);
@@ -81,7 +112,7 @@ export class AppComponent {
 
     upload$.subscribe({
       next: (response: any) => {
-        this.gridComponent.loadGrid();
+        this.gridComponent.loadGrid(this.selectedFile);
       },
       error: (error: any) => {
         console.log(error);
@@ -120,7 +151,7 @@ export class AppComponent {
 
     upload$.subscribe({
       next: (response: any) => {
-        this.gridComponent.loadGrid();
+        this.gridComponent.loadGrid(this.selectedFile);
       },
       error: (error: any) => {
         console.log(error);

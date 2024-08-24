@@ -51,7 +51,6 @@ export class DataGridComponent {
   };
 
   constructor(private http: HttpClient) {
-    this.loadGrid();
   }
 
   onGridReady(params: any) {
@@ -268,10 +267,10 @@ export class DataGridComponent {
   }
 
   /**
-   * Loads the last grid stored in the server
+   * 
    */
-  loadGrid() {
-    this.http.get<any>('http://localhost:8080/file/getExampleData').subscribe((response) => {
+  loadGrid(idFile: number) {
+    this.http.get<any>('http://localhost:8080/data/getData/' + idFile).subscribe((response) => {
       this.columnDefs = response.header;
       this.rowData = response.values;
       this.validationErrors = response.validationErrors;

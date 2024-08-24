@@ -1,6 +1,16 @@
 <div class="h-100 w-100 d-flex flex-column">
+
+  <div id="title_bar">
+    DataCleaner
+  </div>
+
   <ribbon-menu (buttonClick)="handleButtonClick($event)"></ribbon-menu>
   <div class="flex-grow-1">
-    <data-grid></data-grid>
+    <div class="h-100 w-100 d-flex flex-row">
+
+      <sidebar (loadFileId)="loadFile($event)"></sidebar>
+
+      <data-grid class="flex-grow-1"></data-grid>
+    </div>
   </div>
 </div>
