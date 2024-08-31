@@ -159,14 +159,10 @@ export class DataGridComponent {
         _this.selectRows();
 
         //Header of current cell - First column is the "fake header"
-        if(colIndex > 0) {
-          headers[colIndex].classList.add('bg-range-selected');
-
-          //First cell of current row
-          base.parentElement.children[0].classList.add('bg-selected');
-          cell.classList.add('bg-selected');
-       }
-
+        headers[colIndex + 1].classList.add('bg-range-selected');
+        //First cell of current row
+        base.parentElement.children[0].classList.add('bg-selected');
+        cell.classList.add('bg-selected');
       });
     });
 
