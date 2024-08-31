@@ -140,7 +140,7 @@ export class RibbonMenuComponent {
       items: [{
         icon: 'format_list_numbered',
         text: 'Incremental',
-        id: 'add_row_start'
+        id: 'fill_column_numbered'
       },{
         icon: 'radio_button_checked',
         text: 'Fixed value',

@@ -50,7 +50,42 @@ export class AppComponent {
     //Data
     normalization_: (fn: string) => this.normalize(fn),
     validation_: (fn: string) => this.validate(fn),
+    fill_column_numbered: () => this.fillAutoIncremental(),
+    fill_fixed_value: () => this.fillFixedValue()
   };
+
+
+  fillFixedValue() {
+    const newValue = prompt('new value?');
+    if(newValue !== null) {
+      const columns:number[] = this.gridComponent.getSelectedColumns();
+
+      const params = {
+        columns: columns.join(','),
+        idFile: this.selectedFile,
+        newValue: newValue
+      };
+  
+      const _this = this;
+      this.sendPost('data/fillFixedValue', params, function() {
+        _this.gridComponent.loadGrid(_this.selectedFile);
+      });
+    }
+  }
+  
+  fillAutoIncremental() {
+    const columns:number[] = this.gridComponent.getSelectedColumns();
+
+    const params = {
+      columns: columns.join(','),
+      idFile: this.selectedFile
+    };
+
+    const _this = this;
+    this.sendPost('data/fillAutoIncremental', params, function() {
+      _this.gridComponent.loadGrid(_this.selectedFile);
+    });
+  }
 
 
   sendPost(url: string, params: any, callback: Function = function(){}) :void {
