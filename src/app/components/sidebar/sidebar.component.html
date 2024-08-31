@@ -9,8 +9,10 @@
 </div>
   
 
-  <div class="side_panel" [class.d-none]="lateralTab !== 'tab_history'" id="tab_history">
-    <h1>hist</h1>
+  <div class="side_panel" [class.d-none]="lateralTab !== 'tab_config'" id="tab_config">
+    <h1>Config</h1>
+
+    Color: <input type="color" value="#ff0000" />
   </div>
 
   <div class="side_panel" [class.d-none]="lateralTab !== 'tab_files'" id="tab_files">

@@ -12,6 +12,7 @@ import { AgGridModule } from 'ag-grid-angular';
 })
 export class DataGridComponent {
 
+  private idFile = 0;
   //Grid config
   columnDefs: ColDef[] = [];
   rowData : any[] = [];
@@ -85,7 +86,10 @@ export class DataGridComponent {
     }
 
     if (confirm('Are you sure you want to delete selected rows?')) {
-      this.sendPost('structure/deleteRows', { indexes: selected.join(',')})
+      this.sendPost('structure/deleteRows', { 
+        indexes: selected.join(','),
+        idFile: this.idFile
+      })
     }
   }
 
@@ -98,7 +102,10 @@ export class DataGridComponent {
     }
     
     if (confirm('Are you sure you want to delete selected columns?')) {
-      this.sendPost('structure/deleteColumns', { indexes: selected.join(',')})
+      this.sendPost('structure/deleteColumns', { 
+        indexes: selected.join(','),
+        idFile: this.idFile
+      })
     }
   }
 
@@ -129,10 +136,9 @@ export class DataGridComponent {
           base = base.parentNode.parentNode;
         }
 
-        //ariaColIndex starts with "1" and the first column is a "fake header"
-        const colIndex = base.ariaColIndex - 1;
+        const colIndex = base.ariaColIndex - 2;
         const rowIndex = base.parentElement.ariaRowIndex - 2;
-
+        cell.setAttribute('data-col-index', colIndex + "");
 
         //If is a regular cell or "ctrl" is not pressed
         if(!fakeHeader || !event.ctrlKey) {
@@ -175,8 +181,8 @@ export class DataGridComponent {
 
       header.addEventListener('click', function(event: any){
         if(header != null && header.ariaColIndex != null) {
-          const colIndex :number = parseInt(header.ariaColIndex) - 1;
-          const fakeHeader = colIndex === 0;
+          const colIndex :number = parseInt(header.ariaColIndex) - 2;
+          const fakeHeader = colIndex === -1;
           _this.selectedRows=[];
 
           //If click in the header of auto-incremental column
@@ -253,13 +259,13 @@ export class DataGridComponent {
     this.selectedColumns.forEach(function(colIndex) {
       headers.forEach(header => {
         //Add a background en each cell of the same index
-        if(header.ariaColIndex != null && colIndex == (parseInt(header.ariaColIndex) - 1)) {
+        if(header.ariaColIndex != null && colIndex == (parseInt(header.ariaColIndex) - 2)) {
           header.classList.add('bg-range-selected');
         }
       });
 
       cells.forEach(cell => {
-        if(cell.ariaColIndex != null && colIndex == (parseInt(cell.ariaColIndex) - 1)) {
+        if(cell.ariaColIndex != null && colIndex == (parseInt(cell.ariaColIndex) - 2)) {
           cell.classList.add('bg-range-selected');
         }
       });
@@ -270,6 +276,8 @@ export class DataGridComponent {
    * 
    */
   loadGrid(idFile: number) {
+    this.idFile = idFile;
+    
     this.http.get<any>('http://localhost:8080/data/getData/' + idFile).subscribe((response) => {
       this.columnDefs = response.header;
       this.rowData = response.values;
@@ -281,11 +289,14 @@ export class DataGridComponent {
    * Persists the modifications 
    * @param event 
    */
-  onCellValueChanged(event: any) {
+  onCellValueChanged(params: any) {
+    const colIndex = this.columnDefs.findIndex(col => col.field === params.column.colId);
+
     const body = {
-      rowIndex: event.rowIndex,
-      headerName: event.column.colId,
-      value: event.value
+      rowIndex: params.rowIndex,
+      colIndex: colIndex - 1,
+      value: params.value,
+      idFile: this.idFile
     }
 
     this.sendPostJson('data/modifyValue', body);
@@ -321,12 +332,11 @@ export class DataGridComponent {
 
 
   addColumnStart() {
-    //Column 0 is the fake header
-    this.addColumnAtPosition(1);
+    this.addColumnAtPosition(0);
   }
 
   addColumnEnd() {
-    this.addColumnAtPosition(this.columnDefs.length);
+    this.addColumnAtPosition(this.columnDefs.length - 1);
   }
 
   addColumnLeft() {
@@ -351,12 +361,12 @@ export class DataGridComponent {
     let name = prompt('Column name?');
 
     if(name !== null && name.trim() !== '') {
-      this.sendPost('structure/addColumn', {name: name, position: position});
+      this.sendPost('structure/addColumn', {name: name, position: position, idFile: this.idFile});
     }
   }
 
   addRowAtPosition(position: number) {
-    this.sendPost('structure/addRow', {position: position});
+    this.sendPost('structure/addRow', {position: position, idFile: this.idFile});
   }
 
   getSelectedColumns() :number[] {
@@ -401,6 +411,15 @@ export class DataGridComponent {
         console.log(error);
       }
     });
+  }
+
+  joinColumn() {
+    const body = {
+      indexes: this.selectedColumns.join(','),
+      ifFile: this.idFile
+    }
+
+    this.sendPost('structure/joinColumns', body);
   }
 
 }

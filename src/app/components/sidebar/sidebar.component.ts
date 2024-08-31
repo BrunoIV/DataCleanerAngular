@@ -18,9 +18,9 @@ export class SidebarComponent {
   public lateralIcons :any[] = [{
     id: 'tab_files',
     icon: 'draft'
-  },{
-    id: 'tab_history',
-    icon: 'schedule'
+/*  },{
+    id: 'tab_config',
+    icon: 'settings'*/
   }];
 
 

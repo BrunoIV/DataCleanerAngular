@@ -28,7 +28,7 @@ export class AppComponent {
   
   private actionMap: { [key: string]: Function } = {
     import_: (id: string) => this.selectFile(id),
-    export_: (format: string) => window.open('http://localhost:8080/file/export/' + format, '_blank'),
+    export_: (format: string) => window.open('http://localhost:8080/file/export/' + format + '/' + this.selectedFile, '_blank'),
     
 
     //Structure
@@ -37,6 +37,7 @@ export class AppComponent {
     add_column_right: () => this.gridComponent.addColumnRight(),
     add_column_end: () => this.gridComponent.addColumnEnd(),
     delete_column: () => this.gridComponent.deleteColumn(),
+    join_column: () => this.gridComponent.joinColumn(),
 
     add_row_begin: () => this.gridComponent.addRowBegin(),
     add_row_up: () => this.gridComponent.addRowUp(),
@@ -87,36 +88,30 @@ export class AppComponent {
   validate(functionName: string): void {
     const columns:number[] = this.gridComponent.getSelectedColumns();
 
-    const formData = new FormData();
-    formData.append('columns', columns.join(','));
-    formData.append('functionName', 'validate_' + functionName);
-    const upload$ = this.http.post('http://localhost:8080/data/validate', formData);
+    const params = {
+      columns: columns.join(','),
+      functionName: 'validate_' + functionName,
+      idFile: this.selectedFile
+    };
 
-    upload$.subscribe({
-      next: (response: any) => {
-        this.gridComponent.loadGrid(this.selectedFile);
-      },
-      error: (error: any) => {
-        console.log(error);
-      },
+    const _this = this;
+    this.sendPost('data/validate', params, function() {
+      _this.gridComponent.loadGrid(_this.selectedFile);
     });
   }
 
   normalize(functionName: string): void {
     const columns:number[] = this.gridComponent.getSelectedColumns();
 
-    const formData = new FormData();
-    formData.append('columns', columns.join(','));
-    formData.append('functionName', functionName);
-    const upload$ = this.http.post('http://localhost:8080/data/normalize', formData);
+    const params = {
+      columns: columns.join(','),
+      functionName: functionName,
+      idFile: this.selectedFile
+    };
 
-    upload$.subscribe({
-      next: (response: any) => {
-        this.gridComponent.loadGrid(this.selectedFile);
-      },
-      error: (error: any) => {
-        console.log(error);
-      },
+    const _this = this;
+    this.sendPost('data/normalize', params, function() {
+      _this.gridComponent.loadGrid(_this.selectedFile);
     });
   }
 
