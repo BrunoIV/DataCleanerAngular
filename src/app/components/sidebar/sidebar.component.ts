@@ -76,26 +76,24 @@ export class SidebarComponent {
     }
   }
 
-  loadFiles() {
+  loadFiles(selectLast :boolean = false) {
     this.http.get<any>('http://localhost:8080/file/getFiles').subscribe((response) => {
-      if(response.length > 0) {
-        this.selectedFile = response[0].id;
+      
+      let selected = 0;
+      if(selectLast === true) {
+        selected = response.length -1;
+      }
+
+      if(response.length > selected) {
+        this.selectedFile = response[selected].id;
       }
       this.files = response;
     });
   }
 
   openFile() {
-    /*const exists = this.openTabs.find(tab => tab.id === this.selectedFile);
-
-    if(!exists) {
-      this.openTabs.push({id: this.selectedFile, name: "a"});
-    }*/
-
     this.loadFile(this.selectedFile);
   }
-
-
 
   loadFile(id: number): void {
     this.loadFileId.emit(id);

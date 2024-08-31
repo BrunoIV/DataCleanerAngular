@@ -15,6 +15,7 @@ import { SidebarComponent } from './components/sidebar/sidebar.component';
 })
 export class AppComponent {
   @ViewChild(DataGridComponent) private gridComponent!: DataGridComponent;
+  @ViewChild(SidebarComponent) private sidebarComponent!: SidebarComponent;
 
   private selectedFile: number = 0;
 
@@ -146,7 +147,9 @@ export class AppComponent {
 
     upload$.subscribe({
       next: (response: any) => {
-        this.gridComponent.loadGrid(this.selectedFile);
+        this.gridComponent.rowData = response.values;
+        this.gridComponent.columnDefs = response.header;
+        this.sidebarComponent.loadFiles(true);
       },
       error: (error: any) => {
         console.log(error);
