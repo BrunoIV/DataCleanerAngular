@@ -18,6 +18,7 @@ export class AppComponent {
   @ViewChild(SidebarComponent) private sidebarComponent!: SidebarComponent;
 
   private selectedFile: number = 0;
+  public validationErrors : any[] = [];
 
   constructor(private http: HttpClient) {
   }
@@ -72,6 +73,7 @@ export class AppComponent {
       });
     }
   }
+  
   
   fillAutoIncremental() {
     const columns:number[] = this.gridComponent.getSelectedColumns();
@@ -131,8 +133,8 @@ export class AppComponent {
     };
 
     const _this = this;
-    this.sendPost('data/validate', params, function() {
-      _this.gridComponent.loadGrid(_this.selectedFile);
+    this.sendPost('data/validate', params, function(response: any) {
+      _this.validationErrors = response;
     });
   }
 
@@ -171,6 +173,10 @@ export class AppComponent {
 
     document.body.appendChild(fileInput);
     fileInput.click();
+  }
+
+  editCell(line: number, column: string) {
+    this.gridComponent.selectCell(line, column);
   }
 
   onFileSelected(event: any, format :string) {

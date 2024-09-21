@@ -147,7 +147,7 @@ export class RibbonMenuComponent {
         id: 'fill_fixed_value'
       }]
     }]
-  },{
+  /*},{
     id: 'menu_chart',
     title: 'Charts',
     groups: [{
@@ -165,7 +165,7 @@ export class RibbonMenuComponent {
         text: 'Line',
         id: 'chart_line'
       }]
-    }]
+    }]*/
   }];
 
   @Output() buttonClick = new EventEmitter<string>();

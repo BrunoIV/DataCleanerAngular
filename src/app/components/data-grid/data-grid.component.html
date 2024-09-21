@@ -5,6 +5,7 @@ class="ag-theme-alpine"
 [defaultColDef]="defaultColDef"
 [columnDefs]="columnDefs"
 [pagination]="true"
+[rowSelection]="'multiple'"
 [gridOptions]="gridOptions"
 (gridReady)="onGridReady($event)"
 (cellValueChanged)="onCellValueChanged($event)">

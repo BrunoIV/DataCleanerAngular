@@ -16,10 +16,10 @@ export class DataGridComponent {
   //Grid config
   columnDefs: ColDef[] = [];
   rowData : any[] = [];
-  validationErrors : any[] = [];
   
   gridApi: any;
   gridColumnApi: any;
+  rowSelection: number = 2;
 
   private selectedColumns : number[] = [];
   private selectedRows : number[] = [];
@@ -30,6 +30,8 @@ export class DataGridComponent {
 
   gridOptions = {
     animateRows: true,
+
+    selection: { mode: 'singleRow' },
 
     onRowDragEnd: (event: any) => {
         const movingData = event.node.data;
@@ -47,7 +49,6 @@ export class DataGridComponent {
 
     onModelUpdated: (params: any) =>{
       this.addEvents();
-      this.showErrors();
     }
   };
 
@@ -59,21 +60,11 @@ export class DataGridComponent {
     this.gridColumnApi = params.columnApi;
   }
 
-  showErrors() {
-    const cells = document.querySelectorAll('.ag-cell');
 
-    let rowNumber = 0;
-    cells.forEach(cell => {
-      const fakeHeader =  cell.ariaColIndex === "1";
-      if(fakeHeader) {
-
-        if(this.validationErrors[rowNumber] === undefined) {
-          cell.classList.remove('validation_error');
-        } else {
-          cell.classList.add('validation_error');
-        }
-        rowNumber++;
-      }
+  selectCell(row: number, column: string) {
+    this.gridApi.startEditingCell({
+      rowIndex: row,
+      colKey: column
     });
   }
 
@@ -277,7 +268,6 @@ export class DataGridComponent {
     this.http.get<any>('http://localhost:8080/data/getData/' + idFile).subscribe((response) => {
       this.columnDefs = response.header;
       this.rowData = response.values;
-      this.validationErrors = response.validationErrors;
     });
   }
 
@@ -386,7 +376,6 @@ export class DataGridComponent {
       next: (response: any) => {
         this.columnDefs = response.header;
         this.rowData = response.values;
-        this.validationErrors = response.validationErrors;
       },
       error: (error: any) => {
         console.log(error);
@@ -401,7 +390,6 @@ export class DataGridComponent {
       next: (response: any) => {
         this.columnDefs = response.header;
         this.rowData = response.values;
-        this.validationErrors = response.validationErrors;
       },
       error: (error: any) => {
         console.log(error);

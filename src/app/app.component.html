@@ -10,7 +10,21 @@
 
       <sidebar (loadFileId)="loadFile($event)"></sidebar>
 
-      <data-grid class="flex-grow-1"></data-grid>
+      <div class="flex-grow-1">
+        <div class="h-100 w-100 d-flex flex-column">
+          <div style="resize: vertical;overflow: hidden; min-height: 500px; height: calc(100% - 90px);">
+            <data-grid></data-grid>
+          </div>
+
+          <div id="validations" class="flex-grow-1 overflow-scroll">
+            <div (click)="editCell(error.line, error.column)" *ngFor="let error of validationErrors;">
+              {{error.line + 1}} {{error.error}}
+            </div>
+          </div>
+        </div>
+      </div>
+
     </div>
   </div>
+
 </div>

@@ -6,3 +6,9 @@
     line-height: 36px;
     text-align: center;
 }
+
+#validations {
+    background-color: #000;
+    color: #fff;
+    min-height: 0;
+}
