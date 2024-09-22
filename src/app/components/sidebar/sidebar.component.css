@@ -65,6 +65,10 @@
     border-bottom: 1px solid var(--border-color);
 }
 
+#side_tabs :first-child {
+    border-top: 0 !important;
+}
+
 #side_tabs span:hover {
     background-color: var(--accent-bg-color);
     color: var(--accent-text-color);
