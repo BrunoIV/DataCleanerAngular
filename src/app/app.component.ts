@@ -57,10 +57,14 @@ export class AppComponent {
 
 
   fillFixedValue() {
+    const columns:number[] = this.gridComponent.getSelectedColumns();
+    if(!columns.length) {
+      alert('Please, select at least one column');
+      return
+    }
+
     const newValue = prompt('new value?');
     if(newValue !== null) {
-      const columns:number[] = this.gridComponent.getSelectedColumns();
-
       const params = {
         columns: columns.join(','),
         idFile: this.selectedFile,
@@ -77,6 +81,10 @@ export class AppComponent {
   
   fillAutoIncremental() {
     const columns:number[] = this.gridComponent.getSelectedColumns();
+    if(!columns.length) {
+      alert('Please, select at least one column');
+      return
+    }
 
     const params = {
       columns: columns.join(','),
@@ -125,6 +133,10 @@ export class AppComponent {
 
   validate(functionName: string): void {
     const columns:number[] = this.gridComponent.getSelectedColumns();
+    if(!columns.length) {
+      alert('Please, select at least one column');
+      return
+    }
 
     const params = {
       columns: columns.join(','),
@@ -140,7 +152,11 @@ export class AppComponent {
 
   normalize(functionName: string): void {
     const columns:number[] = this.gridComponent.getSelectedColumns();
-
+    if(!columns.length) {
+      alert('Please, select at least one column');
+      return
+    }
+    
     const params = {
       columns: columns.join(','),
       functionName: functionName,

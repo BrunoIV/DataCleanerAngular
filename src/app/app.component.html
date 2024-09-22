@@ -12,13 +12,18 @@
 
       <div class="flex-grow-1">
         <div class="h-100 w-100 d-flex flex-column">
-          <div style="resize: vertical;overflow: hidden; min-height: 500px; height: calc(100% - 90px);">
-            <data-grid></data-grid>
-          </div>
+            <data-grid class="flex-grow-1"></data-grid>
 
-          <div id="validations" class="flex-grow-1 overflow-scroll">
-            <div (click)="editCell(error.line, error.column)" *ngFor="let error of validationErrors;">
-              {{error.line + 1}} {{error.error}}
+          <div id="status_bar">
+
+            <input type="radio" name="status_bar" id="status_bar_validations" checked />
+            <label for="status_bar_validations">Validations</label>
+
+            <div id="validations" class="overflow-scroll px-2">
+              <div (click)="editCell(error.line, error.column)" *ngFor="let error of validationErrors;">
+                <span class="material-symbols-outlined">error</span>
+                <span>{{error.error}} <small>:{{error.line + 1}}</small></span>
+              </div>
             </div>
           </div>
         </div>
