@@ -9,7 +9,7 @@ export class DataService {
 
   constructor(private apiService: ApiService) {}
 
-  getRecords(idFile: number) {
+  getRecords(idFile: number): Observable<any> {
     return this.apiService.sendGet('data/getData/' + idFile);
   }
 

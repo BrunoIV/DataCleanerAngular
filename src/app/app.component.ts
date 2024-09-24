@@ -19,13 +19,21 @@ export class AppComponent {
   @ViewChild(SidebarComponent) private sidebarComponent!: SidebarComponent;
 
   private selectedFile: number = 0;
+  public unsavedChanges: boolean = false;
   public validationErrors : any[] = [];
 
   constructor(private dataService: DataService, private fileService: FileService) {
   }
 
   loadFile(id: number) {
-    this.gridComponent.loadGrid(id);
+    this.gridComponent.loadGrid(id).subscribe({
+      next: (response: any) => {
+        this.unsavedChanges = response.unsavedChanges;
+      },
+      error: (error: any) => {
+        console.log(error);
+      }
+    });
     this.selectedFile = id;
   }
 

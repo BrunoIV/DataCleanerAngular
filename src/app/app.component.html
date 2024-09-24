@@ -1,6 +1,6 @@
 <div class="h-100 w-100 d-flex flex-column">
 
-  <ribbon-menu (buttonClick)="handleButtonClick($event)"></ribbon-menu>
+  <ribbon-menu [unsavedChanges]="unsavedChanges" (buttonClick)="handleButtonClick($event)"></ribbon-menu>
   <div class="flex-grow-1">
     <div class="h-100 w-100 d-flex flex-row">
 

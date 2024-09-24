@@ -3,6 +3,7 @@ import { ColDef } from 'ag-grid-community';
 import { AgGridModule } from 'ag-grid-angular';
 import { DataService } from '../../services/data.service';
 import { StructureService } from '../../services/structure.service';
+import { Observable, tap } from 'rxjs';
 
 @Component({
   selector: 'data-grid',
@@ -23,6 +24,7 @@ export class DataGridComponent {
   //Grid config
   columnDefs: ColDef[] = [];
   rowData : any[] = [];
+  private unsavedChanges: boolean = false;
   
   gridApi: any;
   gridColumnApi: any;
@@ -58,6 +60,11 @@ export class DataGridComponent {
       this.addEvents();
     }
   };
+
+
+  hasUnsavedChanges():boolean {
+    return this.unsavedChanges;
+  }
 
 
   onGridReady(params: any) {
@@ -261,13 +268,16 @@ export class DataGridComponent {
   /**
    * 
    */
-  loadGrid(idFile: number) {
+  loadGrid(idFile: number): Observable<any> {
     this.idFile = idFile;
     
-    this.dataService.getRecords(idFile).subscribe((response) => {
-      this.columnDefs = response.header;
-      this.rowData = response.values;
-    });
+    return this.dataService.getRecords(idFile).pipe(
+      tap((response) => {
+        this.columnDefs = response.header;
+        this.rowData = response.values;
+        this.unsavedChanges = response.unsavedChanges;
+      })
+    );
   }
 
   /**

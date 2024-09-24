@@ -1,4 +1,4 @@
-import { Component, EventEmitter, Output } from '@angular/core';
+import { Component, EventEmitter, Input, Output } from '@angular/core';
 import { HeaderButtonComponent } from './../header-button/header-button.component';
 import { CommonModule } from '@angular/common';
 
@@ -10,11 +10,14 @@ import { CommonModule } from '@angular/common';
   styleUrl: './ribbon-menu.component.css'
 })
 export class RibbonMenuComponent {
+
+  @Input() unsavedChanges :boolean = false;
+  
   public menus = [{
     id: 'menu_file',
     title: 'File',
     groups: [{
-     /*  title: 'Save',
+      title: 'Save',
       items: [{
         icon: 'save',
         text: 'Save',
@@ -25,7 +28,7 @@ export class RibbonMenuComponent {
         id: 'save_as'
       }]
     },{
-      title: 'New',
+    /*title: 'New',
       items: [{
         icon: 'reorder',
         text: 'List',

@@ -10,4 +10,5 @@ import { Component, Input } from '@angular/core';
 export class HeaderButtonComponent {
   @Input() text: string = '';
   @Input() icon: string = '';
+  @Input() cssClass: string = '';
 }
