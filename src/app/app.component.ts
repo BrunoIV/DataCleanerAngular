@@ -2,14 +2,15 @@ import { Component, ViewChild } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterOutlet } from '@angular/router';
 import { RibbonMenuComponent } from './components/ribbon-menu/ribbon-menu.component';
-import { HttpClient, HttpClientModule, HttpParams } from '@angular/common/http';
 import { DataGridComponent } from './components/data-grid/data-grid.component';
 import { SidebarComponent } from './components/sidebar/sidebar.component';
+import { DataService } from './services/data.service';
+import { FileService } from './services/file.service';
 
 @Component({
   selector: 'app-root',
   standalone: true,
-  imports: [CommonModule, RouterOutlet, HttpClientModule, DataGridComponent, SidebarComponent, RibbonMenuComponent],
+  imports: [CommonModule, RouterOutlet, DataGridComponent, SidebarComponent, RibbonMenuComponent],
   templateUrl: './app.component.html',
   styleUrl: './app.component.css'
 })
@@ -20,15 +21,29 @@ export class AppComponent {
   private selectedFile: number = 0;
   public validationErrors : any[] = [];
 
-  constructor(private http: HttpClient) {
+  constructor(private dataService: DataService, private fileService: FileService) {
   }
 
   loadFile(id: number) {
     this.gridComponent.loadGrid(id);
     this.selectedFile = id;
   }
+
+  doSave() {
+
+  }
+
+  doSaveAs() {
+
+  }
   
   private actionMap: { [key: string]: Function } = {
+
+    //Save
+    save: () => this.doSave(),
+    save_as: () => this.doSaveAs(),
+
+    //Import/Export
     import_: (id: string) => this.selectFile(id),
     export_: (format: string) => window.open('http://localhost:8080/file/export/' + format + '/' + this.selectedFile, '_blank'),
     
@@ -63,17 +78,15 @@ export class AppComponent {
       return
     }
 
-    const newValue = prompt('new value?');
+    const newValue = prompt('Please, introduce the new value');
     if(newValue !== null) {
-      const params = {
-        columns: columns.join(','),
-        idFile: this.selectedFile,
-        newValue: newValue
-      };
-  
-      const _this = this;
-      this.sendPost('data/fillFixedValue', params, function() {
-        _this.gridComponent.loadGrid(_this.selectedFile);
+      this.dataService.fillFixedValue(columns, this.selectedFile, newValue).subscribe({
+        next: (response: any) => {
+          this.gridComponent.loadGrid(this.selectedFile);
+        },
+        error: (error: any) => {
+          console.log(error);
+        }
       });
     }
   }
@@ -86,39 +99,15 @@ export class AppComponent {
       return
     }
 
-    const params = {
-      columns: columns.join(','),
-      idFile: this.selectedFile
-    };
-
-    const _this = this;
-    this.sendPost('data/fillAutoIncremental', params, function() {
-      _this.gridComponent.loadGrid(_this.selectedFile);
-    });
-  }
-
-
-  sendPost(url: string, params: any, callback: Function = function(){}) :void {
-    let body = new HttpParams();
-
-    Object.keys(params).forEach(key => {
-      body = body.set(key, params[key].toString());
-    });
-
-    const req = this.http.post<any>('http://localhost:8080/' + url, body);
-
-    req.subscribe({
+    this.dataService.fillAutoIncremental(columns, this.selectedFile).subscribe({
       next: (response: any) => {
-        callback(response);
+        this.gridComponent.loadGrid(this.selectedFile);
       },
       error: (error: any) => {
         console.log(error);
       }
     });
   }
-
-
-
 
   handleButtonClick(buttonId: string): void {
     for (let key in this.actionMap) {
@@ -138,15 +127,13 @@ export class AppComponent {
       return
     }
 
-    const params = {
-      columns: columns.join(','),
-      functionName: 'validate_' + functionName,
-      idFile: this.selectedFile
-    };
-
-    const _this = this;
-    this.sendPost('data/validate', params, function(response: any) {
-      _this.validationErrors = response;
+    this.dataService.validate(columns, this.selectedFile, functionName).subscribe({
+      next: (response: any) => {
+        this.validationErrors = response;
+      },
+      error: (error: any) => {
+        console.log(error);
+      }
     });
   }
 
@@ -156,17 +143,16 @@ export class AppComponent {
       alert('Please, select at least one column');
       return
     }
-    
-    const params = {
-      columns: columns.join(','),
-      functionName: functionName,
-      idFile: this.selectedFile
-    };
 
-    const _this = this;
-    this.sendPost('data/normalize', params, function() {
-      _this.gridComponent.loadGrid(_this.selectedFile);
+    this.dataService.normalize(columns, this.selectedFile, functionName).subscribe({
+      next: (response: any) => {
+        this.gridComponent.loadGrid(this.selectedFile);
+      },
+      error: (error: any) => {
+        console.log(error);
+      }
     });
+    
   }
 
 
@@ -179,12 +165,8 @@ export class AppComponent {
     fileInput.addEventListener('change', (event: any) => {
       const selectedFile = event.target.files[0];
 
-      // Check if the selected file is a CSV file
-     // if (selectedFile && selectedFile.type === 'text/' + format) {
-        
-        this.onFileSelected(event, format);
-        document.body.removeChild(fileInput);
-    
+      this.onFileSelected(event, format);
+      document.body.removeChild(fileInput);
     });
 
     document.body.appendChild(fileInput);
@@ -197,12 +179,7 @@ export class AppComponent {
 
   onFileSelected(event: any, format :string) {
     const selectedFile = event.target.files[0];
-    const formData = new FormData();
-    formData.append('file', selectedFile, selectedFile.name);
-
-    const upload$ = this.http.post('http://localhost:8080/file/import/' + format, formData);
-
-    upload$.subscribe({
+    this.fileService.importFile(selectedFile, format).subscribe({
       next: (response: any) => {
         this.gridComponent.rowData = response.values;
         this.gridComponent.columnDefs = response.header;
@@ -210,7 +187,7 @@ export class AppComponent {
       },
       error: (error: any) => {
         console.log(error);
-      },
+      }
     });
   }
 }

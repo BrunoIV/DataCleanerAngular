@@ -11,9 +11,35 @@ import { CommonModule } from '@angular/common';
 })
 export class RibbonMenuComponent {
   public menus = [{
-    id: 'menu_file',
+  /*  id: 'menu_file',
     title: 'File',
     groups: [{
+      title: 'Save',
+      items: [{
+        icon: 'save',
+        text: 'Save',
+        id: 'save'
+      },{
+        icon: 'save_as',
+        text: 'Save as',
+        id: 'save_as'
+      }]
+    },{
+      title: 'New',
+      items: [{
+        icon: 'reorder',
+        text: 'List',
+        id: 'new_list'
+      },{
+        icon: 'view_list',
+        text: 'Map',
+        id: 'new_map'
+      },{
+        icon: 'grid_on',
+        text: 'Table',
+        id: 'new_table'
+      }]
+    },{*/
       title: 'Import',
       items: [{
         icon: 'grid_on',

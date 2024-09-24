@@ -1,16 +1,23 @@
-import { HttpClient, HttpParams } from '@angular/common/http';
 import { Component } from '@angular/core';
 import { ColDef } from 'ag-grid-community';
 import { AgGridModule } from 'ag-grid-angular';
+import { DataService } from '../../services/data.service';
+import { StructureService } from '../../services/structure.service';
 
 @Component({
   selector: 'data-grid',
   standalone: true,
   imports: [AgGridModule],
+  providers: [DataService, StructureService],
   templateUrl: './data-grid.component.html',
   styleUrl: './data-grid.component.css'
 })
 export class DataGridComponent {
+
+  constructor(
+    private dataService: DataService,
+    private structureService: StructureService) {
+  }
 
   private idFile = 0;
   //Grid config
@@ -52,8 +59,6 @@ export class DataGridComponent {
     }
   };
 
-  constructor(private http: HttpClient) {
-  }
 
   onGridReady(params: any) {
     this.gridApi = params.api;
@@ -77,10 +82,7 @@ export class DataGridComponent {
     }
 
     if (confirm('Are you sure you want to delete selected rows?')) {
-      this.sendPost('structure/deleteRows', { 
-        indexes: selected.join(','),
-        idFile: this.idFile
-      })
+      this.structureService.deleteRows(selected.join(','), this.idFile);
     }
   }
 
@@ -93,10 +95,7 @@ export class DataGridComponent {
     }
     
     if (confirm('Are you sure you want to delete selected columns?')) {
-      this.sendPost('structure/deleteColumns', { 
-        indexes: selected.join(','),
-        idFile: this.idFile
-      })
+      this.structureService.deleteColumns(selected.join(','), this.idFile);
     }
   }
 
@@ -265,7 +264,7 @@ export class DataGridComponent {
   loadGrid(idFile: number) {
     this.idFile = idFile;
     
-    this.http.get<any>('http://localhost:8080/data/getData/' + idFile).subscribe((response) => {
+    this.dataService.getRecords(idFile).subscribe((response) => {
       this.columnDefs = response.header;
       this.rowData = response.values;
     });
@@ -285,7 +284,7 @@ export class DataGridComponent {
       idFile: this.idFile
     }
 
-    this.sendPostJson('data/modifyValue', body);
+    this.dataService.modifyValue(body);
   }
 
 
@@ -347,12 +346,12 @@ export class DataGridComponent {
     let name = prompt('Column name?');
 
     if(name !== null && name.trim() !== '') {
-      this.sendPost('structure/addColumn', {name: name, position: position, idFile: this.idFile});
+      this.structureService.addColumn(name, position, this.idFile);
     }
   }
 
   addRowAtPosition(position: number) {
-    this.sendPost('structure/addRow', {position: position, idFile: this.idFile});
+    this.structureService.addRow(position, this.idFile);
   }
 
   getSelectedColumns() :number[] {
@@ -363,47 +362,8 @@ export class DataGridComponent {
     return this.selectedRows;
   }
 
-  sendPost(url: string, params: any) :void {
-    let body = new HttpParams();
-
-    Object.keys(params).forEach(key => {
-      body = body.set(key, params[key].toString());
-    });
-
-    const req = this.http.post<any>('http://localhost:8080/' + url, body);
-
-    req.subscribe({
-      next: (response: any) => {
-        this.columnDefs = response.header;
-        this.rowData = response.values;
-      },
-      error: (error: any) => {
-        console.log(error);
-      }
-    });
-  }
-
-  sendPostJson(url: string, params: any) :void {
-    const req = this.http.post<any>('http://localhost:8080/' + url, params);
-
-    req.subscribe({
-      next: (response: any) => {
-        this.columnDefs = response.header;
-        this.rowData = response.values;
-      },
-      error: (error: any) => {
-        console.log(error);
-      }
-    });
-  }
-
   joinColumn() {
-    const body = {
-      indexes: this.selectedColumns.join(','),
-      ifFile: this.idFile
-    }
-
-    this.sendPost('structure/joinColumns', body);
+    this.structureService.joinColumns(this.selectedColumns.join(','), this.idFile);
   }
 
 }
