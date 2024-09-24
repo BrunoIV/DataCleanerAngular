@@ -11,10 +11,10 @@ import { CommonModule } from '@angular/common';
 })
 export class RibbonMenuComponent {
   public menus = [{
-  /*  id: 'menu_file',
+    id: 'menu_file',
     title: 'File',
     groups: [{
-      title: 'Save',
+     /*  title: 'Save',
       items: [{
         icon: 'save',
         text: 'Save',
