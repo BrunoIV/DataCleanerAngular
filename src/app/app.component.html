@@ -4,23 +4,37 @@
   <div class="flex-grow-1">
     <div class="h-100 w-100 d-flex flex-row">
 
-      <sidebar (loadFileId)="loadFile($event)"></sidebar>
+      <sidebar (loadFileId)="loadFile($event);loadHistory($event)"></sidebar>
 
       <div class="flex-grow-1">
         <div class="h-100 w-100 d-flex flex-column">
-            <data-grid class="flex-grow-1"></data-grid>
+            <data-grid  (unsavedChanges)="onUnsavedChanges($event)" class="flex-grow-1"></data-grid>
 
           <div id="status_bar">
 
-            <input type="radio" name="status_bar" id="status_bar_validations" checked />
+            <input type="radio" name="status_bar" id="status_bar_history" checked/>
+            <label for="status_bar_history">History</label>
+
+            <div id="history" class="overflow-scroll">
+              <div [class.active]="i==historySelected" (dblclick)="openHistory(history.id)" (click)="historySelected = i" *ngFor="let history of historyList; index as i">
+                <span class="material-symbols-outlined">history</span>
+                <span>{{history.date}} - {{history.description}}</span>
+              </div>
+            </div>
+
+
+
+            <input type="radio" name="status_bar" id="status_bar_validations" />
             <label for="status_bar_validations">Validations</label>
 
-            <div id="validations" class="overflow-scroll px-2">
-              <div (click)="editCell(error.line, error.column)" *ngFor="let error of validationErrors;">
+            <div id="validations" class="overflow-scroll">
+              
+              <div [class.active]="i==validationSelected" (dblclick)="editCell(error.line, error.column)" (click)="validationSelected = i" *ngFor="let error of validationErrors; index as i">
                 <span class="material-symbols-outlined">error</span>
                 <span>{{error.error}} <small>:{{error.line + 1}}</small></span>
               </div>
             </div>
+
           </div>
         </div>
       </div>

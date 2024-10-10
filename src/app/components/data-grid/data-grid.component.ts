@@ -1,4 +1,4 @@
-import { Component } from '@angular/core';
+import { Component, EventEmitter, Output } from '@angular/core';
 import { ColDef } from 'ag-grid-community';
 import { AgGridModule } from 'ag-grid-angular';
 import { DataService } from '../../services/data.service';
@@ -24,7 +24,6 @@ export class DataGridComponent {
   //Grid config
   columnDefs: ColDef[] = [];
   rowData : any[] = [];
-  private unsavedChanges: boolean = false;
   
   gridApi: any;
   gridColumnApi: any;
@@ -36,6 +35,12 @@ export class DataGridComponent {
     sortable: false,
     filter: false
   };
+
+
+  @Output() unsavedChanges = new EventEmitter<boolean>();
+  setUnsavedChanges(value: boolean): void {
+    this.unsavedChanges.emit(value);
+  }
 
   gridOptions = {
     animateRows: true,
@@ -62,11 +67,6 @@ export class DataGridComponent {
   };
 
 
-  hasUnsavedChanges():boolean {
-    return this.unsavedChanges;
-  }
-
-
   onGridReady(params: any) {
     this.gridApi = params.api;
     this.gridColumnApi = params.columnApi;
@@ -89,7 +89,14 @@ export class DataGridComponent {
     }
 
     if (confirm('Are you sure you want to delete selected rows?')) {
-      this.structureService.deleteRows(selected.join(','), this.idFile);
+      this.structureService.deleteRows(selected.join(','), this.idFile).subscribe({
+        next: (response: any) => {
+          this.setUnsavedChanges(true);
+        },
+        error: (error: any) => {
+          console.log(error);
+        }
+      });
     }
   }
 
@@ -102,7 +109,15 @@ export class DataGridComponent {
     }
     
     if (confirm('Are you sure you want to delete selected columns?')) {
-      this.structureService.deleteColumns(selected.join(','), this.idFile);
+      this.structureService.deleteColumns(selected.join(','), this.idFile).subscribe({
+        next: (response: any) => {
+          this.loadGridNoResponse(this.idFile);
+          this.setUnsavedChanges(true);
+        },
+        error: (error: any) => {
+          console.log(error);
+        }
+      });
     }
   }
 
@@ -275,13 +290,36 @@ export class DataGridComponent {
       tap((response) => {
         this.columnDefs = response.header;
         this.rowData = response.values;
-        this.unsavedChanges = response.unsavedChanges;
+        this.setUnsavedChanges(response.unsavedChanges);
       })
     );
   }
 
+  loadGridHistory(idFile: number): Observable<any> {
+    this.idFile = idFile;
+    
+    return this.dataService.getRecordsFromHistory(idFile).pipe(
+      tap((response) => {
+        this.columnDefs = response.header;
+        this.rowData = response.values;
+        this.setUnsavedChanges(response.unsavedChanges);
+      })
+    );
+  }
+  
+
+  loadGridNoResponse(idFile: number) {
+    this.loadGrid(idFile).subscribe({
+      next: (response: any) => {
+      },
+      error: (error: any) => {
+        console.log(error);
+      }
+    });
+  }
+
   /**
-   * Persists the modifications 
+   * Persists the modifications s
    * @param event 
    */
   onCellValueChanged(params: any) {
@@ -294,7 +332,14 @@ export class DataGridComponent {
       idFile: this.idFile
     }
 
-    this.dataService.modifyValue(body);
+    this.dataService.modifyValue(body).subscribe({
+      next: (response: any) => {
+        this.setUnsavedChanges(true);
+      },
+      error: (error: any) => {
+        console.log(error);
+      }
+    });
   }
 
 
@@ -324,8 +369,6 @@ export class DataGridComponent {
     }
   }
 
-
-
   addColumnStart() {
     this.addColumnAtPosition(0);
   }
@@ -352,16 +395,32 @@ export class DataGridComponent {
     }
   }
 
-  addColumnAtPosition(position: number) {
+  addColumnAtPosition(position: number, ) {
     let name = prompt('Column name?');
 
     if(name !== null && name.trim() !== '') {
-      this.structureService.addColumn(name, position, this.idFile);
+      this.structureService.addColumn(name, position, this.idFile).subscribe({
+        next: (response: any) => {
+          this.loadGridNoResponse(this.idFile);
+          this.setUnsavedChanges(true);
+        },
+        error: (error: any) => {
+          console.log(error);
+        }
+      });
     }
   }
 
   addRowAtPosition(position: number) {
-    this.structureService.addRow(position, this.idFile);
+    this.structureService.addRow(position, this.idFile).subscribe({
+      next: (response: any) => {
+        this.loadGridNoResponse(this.idFile);
+        this.setUnsavedChanges(true);
+      },
+      error: (error: any) => {
+        console.log(error);
+      }
+    });
   }
 
   getSelectedColumns() :number[] {
@@ -373,7 +432,15 @@ export class DataGridComponent {
   }
 
   joinColumn() {
-    this.structureService.joinColumns(this.selectedColumns.join(','), this.idFile);
+    this.structureService.joinColumns(this.selectedColumns.join(','), this.idFile).subscribe({
+      next: (response: any) => {
+        this.loadGridNoResponse(this.idFile);
+        this.setUnsavedChanges(true);
+      },
+      error: (error: any) => {
+        console.log(error);
+      }
+    });
   }
 
 }

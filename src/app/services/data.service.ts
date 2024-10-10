@@ -13,8 +13,12 @@ export class DataService {
     return this.apiService.sendGet('data/getData/' + idFile);
   }
 
-  modifyValue(param: object) {
-    this.apiService.sendPostJson('data/modifyValue', param);
+  getRecordsFromHistory(idHistory: number): Observable<any> {
+    return this.apiService.sendGet('data/getData/history/' + idHistory);
+  }
+
+  modifyValue(param: object): Observable<any> {
+    return this.apiService.sendPostJson('data/modifyValue', param);
   }
 
   /**

@@ -21,11 +21,17 @@ export class AppComponent {
   private selectedFile: number = 0;
   public unsavedChanges: boolean = false;
   public validationErrors : any[] = [];
+  public historyList: any[] = [];
+  public historySelected: number = 0;
+  public validationSelected :number = 0;
 
   constructor(private dataService: DataService, private fileService: FileService) {
   }
 
   loadFile(id: number) {
+    this.selectedFile = id;
+ 
+
     this.gridComponent.loadGrid(id).subscribe({
       next: (response: any) => {
         this.unsavedChanges = response.unsavedChanges;
@@ -34,26 +40,90 @@ export class AppComponent {
         console.log(error);
       }
     });
-    this.selectedFile = id;
+  }
+
+  loadHistory(id:number) {
+    this.fileService.getHistory(id).subscribe({
+      next: (response: any) => {
+        this.historyList = response;
+      },
+      error: (error: any) => {
+        console.log(error);
+      }
+    }); 
+  }
+  
+
+  openHistory(id: number) {
+    this.gridComponent.loadGridHistory(id).subscribe({
+      next: (response: any) => {
+        this.unsavedChanges = response.unsavedChanges;
+        this.validationErrors = [];
+        this.validationSelected = 0;
+      },
+      error: (error: any) => {
+        console.log(error);
+      }
+    });
   }
 
   doSave() {
-
+    this.fileService.save(this.selectedFile).subscribe({
+      next: (response: any) => {
+        this.unsavedChanges = false;
+      },
+      error: (error: any) => {
+        console.log(error);
+      }
+    });
   }
 
   doSaveAs() {
+    let name = prompt('New name?');
 
+    if(name !== null && name.trim() !== '') {
+      this.fileService.saveAs(this.selectedFile, name).subscribe({
+        next: (response: any) => {
+          this.unsavedChanges = false;
+          this.sidebarComponent.loadFiles();
+        },
+        error: (error: any) => {
+          console.log(error);
+        }
+      });
+    }
   }
+
+  doNewFile(type: string) {
+    let name = prompt('New name?');
+
+    if(name !== null && name.trim() !== '') {
+      this.fileService.newFile(type, name).subscribe({
+        next: (response: any) => {
+          this.sidebarComponent.loadFiles();
+        },
+        error: (error: any) => {
+          console.log(error);
+        }
+      });
+    }
+  }
+
   
   private actionMap: { [key: string]: Function } = {
 
     //Save
-    save: () => this.doSave(),
     save_as: () => this.doSaveAs(),
+    save: () => this.doSave(),
+
+    //Next
+    //new_list: () => this.doNewFile('list'),
+    //new_map: () => this.doNewFile('map'),
+    //new_table: () => this.doNewFile('table'),
 
     //Import/Export
     import_: (id: string) => this.selectFile(id),
-    export_: (format: string) => window.open('http://localhost:8080/file/export/' + format + '/' + this.selectedFile, '_blank'),
+    export_: (format: string) => this.fileService.export(this.selectedFile, format),
     
 
     //Structure
@@ -90,7 +160,7 @@ export class AppComponent {
     if(newValue !== null) {
       this.dataService.fillFixedValue(columns, this.selectedFile, newValue).subscribe({
         next: (response: any) => {
-          this.gridComponent.loadGrid(this.selectedFile);
+          this.gridComponent.loadGridNoResponse(this.selectedFile);
         },
         error: (error: any) => {
           console.log(error);
@@ -109,7 +179,7 @@ export class AppComponent {
 
     this.dataService.fillAutoIncremental(columns, this.selectedFile).subscribe({
       next: (response: any) => {
-        this.gridComponent.loadGrid(this.selectedFile);
+        this.gridComponent.loadGridNoResponse(this.selectedFile);
       },
       error: (error: any) => {
         console.log(error);
@@ -117,11 +187,17 @@ export class AppComponent {
     });
   }
 
+  onUnsavedChanges(value: boolean): void {
+    this.unsavedChanges = value;
+    this.loadHistory(this.selectedFile);
+  }
+
   handleButtonClick(buttonId: string): void {
     for (let key in this.actionMap) {
       if (buttonId.startsWith(key)) {
         const parameter = buttonId.replace(key, '');
         this.actionMap[key](parameter);
+        this.loadHistory(this.selectedFile);
         return;
       }
     }
@@ -154,7 +230,7 @@ export class AppComponent {
 
     this.dataService.normalize(columns, this.selectedFile, functionName).subscribe({
       next: (response: any) => {
-        this.gridComponent.loadGrid(this.selectedFile);
+        this.gridComponent.loadGridNoResponse(this.selectedFile);
       },
       error: (error: any) => {
         console.log(error);

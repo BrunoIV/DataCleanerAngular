@@ -42,7 +42,7 @@ export class SidebarComponent {
   newFile() {
     const fileName = prompt('Name of file?');
     if(fileName !== null && fileName !== '') {
-      this.fileService.createFile(fileName).subscribe({
+      this.fileService.newFile('table', fileName).subscribe({
         next: (response: any) => {
           this.loadFiles();
         },
