@@ -1,44 +1,76 @@
-
-
-
+:host {
+    --input-height: 28px;
+}
+  
 #tab_files ul { 
-    margin: 0;
-    padding: 10px 5px;
+    padding: 0;
+    height: calc(100vh - 245px);
+    margin: 5px 0 0 0;
+    overflow: scroll;
 }
 
 #tab_files li {
+    font-size: 12px;
     list-style-type: none;
-    line-height: 30px;
-    border-left: 4px solid transparent;
+    line-height: 26px;
 }
 
 #tab_files li span {
-    line-height: 30px;
+    line-height: 26px;
     float: left;
+    font-size: 16px;
+    margin: 0 3px 0 10px;
 }
 
 #tab_files li.selected {
-    border-color: var(--accent-bg-color);
+    background-color: var(--accent-bg-color);
+    color: var(--accent-text-color);
 }
 
 #tab_files button {
-    background: transparent;
-    border: 0;
-    line-height: 36px;
-    height: 36px;
+    background: #fcfcfc;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+    line-height: var(--input-height);
+    height: var(--input-height);
     padding: 0 5px;
 }
 
+#tab_files button:hover {
+    background: #efefef;
+}
+
+#tab_files button:first-child {
+    border-right: 0 !important;
+    border-top-right-radius: 0;
+    border-bottom-right-radius: 0;
+}
+
+#tab_files button:last-child {
+    border-top-left-radius: 0;
+    border-bottom-left-radius: 0;
+    border-left: 0 !important;
+}
+
 #tab_files button span {
-    font-size: 20px;
-    line-height: 36px;
-    height: 36px;
+    font-size: 15px;
+    line-height: var(--input-height);
+    height: var(--input-height);
 }
 
 #tab_files header {
-    /*background-color: var(--accent-bg-color);*/
-    line-height: 36px;
-    height: 36px;
+    margin-top: 10px;
+}
+
+#tab_files header input {
+    height: var(--input-height);
+    border: 1px solid #ccc;
+    padding: 0px 10px;
+    width: 100%;
+}
+
+#tab_files header input::placeholder {
+    font-size: 12px;
 }
 
 #side_tabs {
@@ -70,8 +102,7 @@
 }
 
 #side_tabs span:hover {
-    background-color: var(--accent-bg-color);
-    color: var(--accent-text-color);
+    background-color: #efefef;
 }
 
 .side_panel {
@@ -84,4 +115,5 @@
 .side_panel h1 {
     font-size: 18px;
     font-weight: 300;
+    margin: 0;
 }

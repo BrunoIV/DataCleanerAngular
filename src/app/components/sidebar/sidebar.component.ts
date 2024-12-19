@@ -17,7 +17,8 @@ export class SidebarComponent {
   }
 
   @Output() loadFileId = new EventEmitter<number>();
-  public files: any[] = [];
+  public filteredFiles: any[] = [];
+  public allFiles: any[] = [];
   public lateralTab = 'tab_files';
   public selectedFile: number = 0;
   public lateralIcons :any[] = [{
@@ -28,6 +29,11 @@ export class SidebarComponent {
     icon: 'settings'*/
   }];
 
+
+  searchFile(event: Event): void {
+    const inputValue = (event.target as HTMLInputElement).value;
+    this.filteredFiles = this.allFiles.filter(file => file.name.includes(inputValue));
+  }
 
 
   toggleLateralTab(tabName: string) {
@@ -69,15 +75,8 @@ export class SidebarComponent {
   loadFiles(selectLast :boolean = false) {
     this.fileService.getFiles().subscribe({
       next: (response: any) => {
-        let selected = 0;
-        if(selectLast === true) {
-          selected = response.length -1;
-        }
-  
-        if(response.length > selected) {
-          this.selectedFile = response[selected].id;
-        }
-        this.files = response;
+        this.allFiles = response;
+        this.filteredFiles = response;
       },
       error: (error: any) => {
         console.log(error);
@@ -85,15 +84,8 @@ export class SidebarComponent {
     });
   }
 
-  openFile() {
-    this.loadFile(this.selectedFile);
-  }
-
-  loadFile(id: number): void {
-    this.loadFileId.emit(id);
-  }
-
-  highlightFile(index :number) {
+  openFile(index: number) {
     this.selectedFile = index;
+    this.loadFileId.emit(index);
   }
 }
