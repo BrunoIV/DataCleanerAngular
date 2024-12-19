@@ -42,7 +42,8 @@
     <li *ngFor="let file of filteredFiles; let i = index"
         [class.selected]="file.id === selectedFile"
         (click)="openFile(file.id)">
-        <span [attr.title]="file.unsavedChanges === true ? 'Unsaved changes' : ''" [class.text-danger]="file.unsavedChanges === true" class="material-symbols-outlined">draft</span> {{ file.name }} 
+        <span class="material-symbols-outlined">draft</span> {{ file.name }} 
+        <span [class.d-block]="file.unsavedChanges === true" title="Unsaved changes" class="material-symbols-outlined">warning</span>
   </ul>
 
 </div>

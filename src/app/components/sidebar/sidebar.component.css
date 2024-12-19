@@ -22,6 +22,11 @@
     margin: 0 3px 0 10px;
 }
 
+#tab_files li span:last-child {
+    float: right;
+    display: none;
+}  
+
 #tab_files li.selected {
     background-color: var(--accent-bg-color);
     color: var(--accent-text-color);
