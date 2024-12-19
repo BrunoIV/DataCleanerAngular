@@ -25,6 +25,7 @@
 #tab_files li span:last-child {
     float: right;
     display: none;
+    padding-right: 10px;
 }  
 
 #tab_files li.selected {
