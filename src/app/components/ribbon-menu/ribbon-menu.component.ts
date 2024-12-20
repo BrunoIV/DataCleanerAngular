@@ -17,6 +17,13 @@ export class RibbonMenuComponent {
     id: 'menu_file',
     title: 'File',
     groups: [{
+      title: 'New',
+      items: [{
+        icon: 'draft',
+        text: 'File',
+        id: 'new_file'
+      }]
+    },{
       title: 'Save',
       items: [{
         icon: 'save',
@@ -28,21 +35,7 @@ export class RibbonMenuComponent {
         id: 'save_as'
       }]
     },{
-    /*title: 'New',
-      items: [{
-        icon: 'reorder',
-        text: 'List',
-        id: 'new_list'
-      },{
-        icon: 'view_list',
-        text: 'Map',
-        id: 'new_map'
-      },{
-        icon: 'grid_on',
-        text: 'Table',
-        id: 'new_table'
-      }]
-    },{*/
+
       title: 'Import',
       items: [{
         icon: 'grid_on',
@@ -144,6 +137,17 @@ export class RibbonMenuComponent {
         icon: 'match_case',
         text: 'Capitalize',
         id: 'normalization_capitalize'
+      }]
+    },{
+      title: 'Outliners',
+      items: [{
+        icon: 'show_chart',
+        text: 'Z-score',
+        id: 'outliners_zscore'
+      },{
+        icon: 'show_chart',
+        text: 'Percentile',
+        id: 'outliners_percentile'
       }]
     },{
       title: 'Validation',
