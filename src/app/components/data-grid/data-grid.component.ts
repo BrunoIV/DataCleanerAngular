@@ -21,6 +21,7 @@ export class DataGridComponent {
   }
 
   private idFile = 0;
+
   //Grid config
   columnDefs: ColDef[] = [];
   rowData : any[] = [];
@@ -31,6 +32,10 @@ export class DataGridComponent {
 
   private selectedColumns : number[] = [];
   private selectedRows : number[] = [];
+
+  private selectedCellColumn: number = -1;
+  private selectedCellRow: number = -1;
+
   defaultColDef = {
     sortable: false,
     filter: false
@@ -44,8 +49,9 @@ export class DataGridComponent {
 
   gridOptions = {
     animateRows: true,
-
-    selection: { mode: 'singleRow' },
+    suppressRowClickSelection: true,
+    rowHeight: 26,
+    headerHeight: 26,
 
     onRowDragEnd: (event: any) => {
         const movingData = event.node.data;
@@ -150,31 +156,53 @@ export class DataGridComponent {
 
         const colIndex = base.ariaColIndex - 2;
         const rowIndex = base.parentElement.ariaRowIndex - 2;
+        _this.selectedCellColumn = colIndex;
+        _this.selectedCellRow = rowIndex;
+
         cell.setAttribute('data-col-index', colIndex + "");
 
-        //If is a regular cell or "ctrl" is not pressed
-        if(!fakeHeader || !event.ctrlKey) {
+
+        //If is a regular cell and "ctrl" is not pressed or "shift" is not pressed
+        if(!fakeHeader || (!event.ctrlKey && !event.shiftKey)) {
           _this.selectedRows=[];
         }
 
+
         //Click in the left header
         if(fakeHeader) {
-          const indexInArray = _this.selectedRows.indexOf(rowIndex);
-          if(indexInArray === -1) {
-            _this.selectedRows.push(rowIndex);
+          
+          //Shift is pressed and there's previous row selected
+          let numberOfSelectedRows = _this.selectedRows.length;
+          if(!!event.shiftKey && numberOfSelectedRows > 0) {
+            const lastSelectedRow = _this.selectedRows[numberOfSelectedRows - 1];
+            let start = lastSelectedRow < rowIndex ? lastSelectedRow : rowIndex;
+            const end = lastSelectedRow > rowIndex ? lastSelectedRow : rowIndex;
+  
+            for(;start <= end;start++) {
+              const indexInArray = _this.selectedRows.indexOf(start);
+              if(indexInArray === -1) {
+                _this.selectedRows.push(start);
+              }
+            }
           } else {
-            _this.selectedRows.splice(indexInArray, 1);
+            const indexInArray = _this.selectedRows.indexOf(rowIndex);
+            if(indexInArray === -1) {
+              _this.selectedRows.push(rowIndex);
+            } else {
+              _this.selectedRows.splice(indexInArray, 1);
+            }
           }
         }
 
-
         _this.selectRows();
 
-        //Header of current cell - First column is the "fake header"
-        headers[colIndex + 1].classList.add('bg-range-selected');
-        //First cell of current row
-        base.parentElement.children[0].classList.add('bg-selected');
-        cell.classList.add('bg-selected');
+        if(colIndex > -1) {
+          //Header of current cell - First column is the "fake header"
+          headers[colIndex + 1].classList.add('bg-range-selected');
+          //First cell of current row
+          base.parentElement.children[0].classList.add('bg-selected');
+          cell.classList.add('bg-selected');
+        }
       });
     });
 
@@ -193,25 +221,40 @@ export class DataGridComponent {
           const fakeHeader = colIndex === -1;
           _this.selectedRows=[];
 
-          //If click in the header of auto-incremental column
-          //or "ctrl" is not pressed
-          if(fakeHeader || !event.ctrlKey) {
+          //Keep selection if "ctrl" or "shift" is pressed
+          if(!event.ctrlKey && !event.shiftKey) {
             _this.selectedColumns = [];
           }
 
+          //The first row (#) selects all columns
           if(fakeHeader) {
-            //Selects all
             for(let i = 0; i < _this.columnDefs.length; i++) {
               _this.selectedColumns.push(i);
             }
           } else {
-            const indexInArray = _this.selectedColumns.indexOf(colIndex);
+            //Shift is pressed and there's previous row selected
+            let numberOfSelectedColumns = _this.selectedColumns.length;
+              if(!!event.shiftKey && numberOfSelectedColumns > 0) {
+                const lastSelectedColumn = _this.selectedColumns[numberOfSelectedColumns - 1];
+                let start = lastSelectedColumn < colIndex ? lastSelectedColumn : colIndex;
+                const end = lastSelectedColumn > colIndex ? lastSelectedColumn : colIndex;
+      
+                for(;start <= end;start++) {
+                  const indexInArray = _this.selectedColumns.indexOf(start);
+                  if(indexInArray === -1) {
+                    _this.selectedColumns.push(start);
+                  }
+                }
+              } else {
+                const indexInArray = _this.selectedColumns.indexOf(colIndex);
 
-            if(indexInArray === -1) {
-              _this.selectedColumns.push(colIndex);
-            } else {
-              _this.selectedColumns.splice(indexInArray, 1);
-            }
+                if(indexInArray === -1) {
+                  _this.selectedColumns.push(colIndex);
+                } else {
+                  _this.selectedColumns.splice(indexInArray, 1);
+                }
+              }
+          
           }
 
           _this.selectColumn();
@@ -352,20 +395,22 @@ export class DataGridComponent {
   }
 
   addRowUp() {
-    const selectedItems = this.selectedRows.length;
+    const selection = this.getSelectedRows();
+    const selectedItems = selection.length;
     if(selectedItems === 0) {
       alert('Please, select a row');
     } else {
-      this.addRowAtPosition(this.selectedRows[selectedItems - 1]);
+      this.addRowAtPosition(selection[selectedItems - 1]);
     }
   }
 
   addRowDown() {
-    const selectedItems = this.selectedRows.length;
+    const selection = this.getSelectedRows();
+    const selectedItems = selection.length;
     if(selectedItems === 0) {
       alert('Please, select a row');
     } else {
-      this.addRowAtPosition(this.selectedRows[selectedItems - 1] + 1);
+      this.addRowAtPosition(selection[selectedItems - 1] + 1);
     }
   }
 
@@ -378,20 +423,22 @@ export class DataGridComponent {
   }
 
   addColumnLeft() {
-    const selected = this.selectedColumns.length;
+    const selection = this.getSelectedColumns();
+    const selected = selection.length;
     if(selected === 0) {
       alert('Please, select a column');
     } else {
-      this.addColumnAtPosition(this.selectedColumns[selected - 1]);
+      this.addColumnAtPosition(selection[selected - 1]);
     }
   }
 
   addColumnRight() {
-    const selectedItems = this.selectedColumns.length;
-    if(selectedItems === 0) {
+    const selection = this.getSelectedColumns();
+    const selected = selection.length;
+    if(selected === 0) {
       alert('Please, select a column');
     } else {
-      this.addColumnAtPosition(this.selectedColumns[selectedItems - 1] + 1);
+      this.addColumnAtPosition(selection[selected - 1] + 1);
     }
   }
 
@@ -424,11 +471,21 @@ export class DataGridComponent {
   }
 
   getSelectedColumns() :number[] {
-    return this.selectedColumns;
+    if(this.selectedColumns.length) {
+      return this.selectedColumns;
+    } else if(this.selectedCellColumn >= 0) {
+      return [this.selectedCellColumn];
+    }
+    return [];
   }
 
   getSelectedRows() :number[] {
-    return this.selectedRows;
+    if(this.selectedRows.length) {
+      return this.selectedRows;
+    } else if(this.selectedCellRow >= 0) {
+      return [this.selectedCellRow];
+    }
+    return [];
   }
 
   joinColumn() {

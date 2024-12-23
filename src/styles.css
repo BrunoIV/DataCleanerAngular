@@ -4,6 +4,7 @@
 
 :root {
     --accent-bg-color: #2b589b;
+    --accent-bg-color-50: rgba(43, 88, 155, 0.2);
     --accent-text-color: #fff;
 
     --border-color: #ccc;
@@ -15,6 +16,7 @@
 body {
     font-size: 14px;
     overflow: hidden;
+    margin: 0; font-family: Roboto, "Helvetica Neue", sans-serif;
 }
 
 html, body {
@@ -24,23 +26,27 @@ html, body {
 
 
 /*Header and "fake header" when selects a cell, row or column */
-.bg-selected.bg-fake-header, .bg-range-selected.bg-fake-header, .bg-range-selected.ag-header-cell {
-    background-color: #caead8 !important;
-    color: #107c41;
+.ag-cell.bg-selected.bg-fake-header, 
+.ag-cell.bg-fake-header.bg-range-selected,
+.bg-range-selected.ag-header-cell {
+    background-color: var(--accent-bg-color) !important;
+    color: var(--accent-text-color) !important;
     font-weight: bold;
 }
 
+/* Transparent border to prevent movements when cell has focus */
 .ag-cell{
     border: 2px solid transparent !important;
 }
 
+/* Border of selected cell */
 .ag-cell.bg-selected:not(.bg-fake-header) {
-    border: 2px solid #107c41 !important;
+    border: 2px solid var(--accent-bg-color) !important;
 }
 
 /* Cell when selects a column or row */
 .ag-cell.bg-range-selected {
-    background: #e7f2ec !important;
+    background: var(--accent-bg-color-50) !important;
 }
 
 /* Transform regular cells into something that looks like a "header" */
@@ -49,7 +55,18 @@ html, body {
     border-right: 1px solid #dde2eb !important;
 }
 
-
-.validation_error {
-    background-color: red !important;
+/* Resize of header*/
+.ag-header-cell-resize {
+    width: 1px !important;
+    right: 0 !important;
 }
+.ag-header-cell-resize::after {
+    height: 30px !important;
+    top: 0 !important;
+}  
+
+/* Removes hover background over row */
+.ag-row-hover::before{
+    background-color: transparent !important;
+}
+  
