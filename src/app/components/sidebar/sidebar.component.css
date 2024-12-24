@@ -1,6 +1,10 @@
 :host {
     --input-height: 28px;
 }
+
+#tab_files {
+    border-right: 1px solid var(--border-color);
+}
   
 #tab_files ul { 
     padding: 0;

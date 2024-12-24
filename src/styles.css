@@ -36,12 +36,13 @@ html, body {
 
 /* Transparent border to prevent movements when cell has focus */
 .ag-cell{
-    border: 2px solid transparent !important;
+    border: 1px solid transparent !important;
+    border-right: 1px solid #ccc !important;
 }
 
 /* Border of selected cell */
 .ag-cell.bg-selected:not(.bg-fake-header) {
-    border: 2px solid var(--accent-bg-color) !important;
+    border: 1px solid var(--accent-bg-color) !important;
 }
 
 /* Cell when selects a column or row */
@@ -70,3 +71,8 @@ html, body {
     background-color: transparent !important;
 }
   
+
+.ag-root-wrapper {
+    border-left: 0px !important;
+    border-radius: 0 !important;
+}

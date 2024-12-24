@@ -24,7 +24,6 @@
         white 25px,
         white 100%
     );
-    border-left: 1px solid var(--border-color);
 
     min-height: 0;
     font-size: 13px;
