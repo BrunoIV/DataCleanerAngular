@@ -56,14 +56,19 @@ html, body {
     border-right: 1px solid #dde2eb !important;
 }
 
+.ag-header-cell {
+    border-right: 1px solid var(--border-color) !important;
+}
+
 /* Resize of header*/
 .ag-header-cell-resize {
-    width: 1px !important;
+    width: 0px !important;
     right: 0 !important;
 }
 .ag-header-cell-resize::after {
     height: 30px !important;
     top: 0 !important;
+    background-color: transparent !important;
 }  
 
 /* Removes hover background over row */
