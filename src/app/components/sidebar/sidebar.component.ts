@@ -17,10 +17,13 @@ export class SidebarComponent {
   }
 
   @Output() loadFileId = new EventEmitter<number>();
+
+  private search = '';
   public filteredFiles: any[] = [];
   public allFiles: any[] = [];
   public lateralTab = 'tab_files';
-  public selectedFile: number = 0;
+  public currentFile: number = 0;
+  public selectedFiles: number[] = [];
   public lateralIcons :any[] = [{
     id: 'tab_files',
     icon: 'draft'
@@ -31,8 +34,12 @@ export class SidebarComponent {
 
 
   searchFile(event: Event): void {
-    const inputValue = (event.target as HTMLInputElement).value;
-    this.filteredFiles = this.allFiles.filter(file => file.name.includes(inputValue));
+    this.search = (event.target as HTMLInputElement).value;
+    this.filterFiles();
+  }
+
+  filterFiles(): void {
+    this.filteredFiles = this.allFiles.filter(file => file.name.includes(this.search));
   }
 
 
@@ -60,8 +67,8 @@ export class SidebarComponent {
   }
 
   deleteFile(){
-    if(confirm('Are you sure you want to delete this file?')) {
-      this.fileService.deleteFile(this.selectedFile).subscribe({
+    if(confirm('Are you sure you want to delete this file(s)?')) {
+      this.fileService.deleteFiles(this.selectedFiles).subscribe({
         next: (response: any) => {
           this.loadFiles();
         },
@@ -72,11 +79,12 @@ export class SidebarComponent {
     }
   }
 
-  loadFiles(selectLast :boolean = false) {
+  loadFiles() {
     this.fileService.getFiles().subscribe({
       next: (response: any) => {
         this.allFiles = response;
         this.filteredFiles = response;
+        this.filterFiles();
       },
       error: (error: any) => {
         console.log(error);
@@ -84,8 +92,42 @@ export class SidebarComponent {
     });
   }
 
-  openFile(index: number) {
-    this.selectedFile = index;
-    this.loadFileId.emit(index);
+  openFile(index: number, event: MouseEvent) {
+
+    if(event.ctrlKey) {
+      this.selectedFiles.push(index);
+    } else if(event.shiftKey) {
+
+      const min = index < this.currentFile ? index : this.currentFile;
+      const max = index > this.currentFile ? index : this.currentFile;
+
+      //Marcar todo
+      let select = false;
+      let _this = this;
+      this.selectedFiles = [];
+
+      this.filteredFiles.forEach(function(file) {
+
+        if(file.id === min) {
+          select = true;
+        }
+
+        if(select === true) {
+          _this.selectedFiles.push(file.id);
+        }
+
+        if(file.id === max) {
+          select = false;
+        }
+      });
+
+    } else {
+      this.selectedFiles = [index];
+    }
+
+    if(!event.ctrlKey && !event.shiftKey) {
+      this.currentFile = index;
+      this.loadFileId.emit(index);
+    }
   }
 }

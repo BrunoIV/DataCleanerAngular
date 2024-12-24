@@ -40,8 +40,8 @@
 
   <ul>
     <li *ngFor="let file of filteredFiles; let i = index"
-        [class.selected]="file.id === selectedFile"
-        (click)="openFile(file.id)">
+        [class.selected]="selectedFiles.includes(file.id)"
+        (click)="openFile(file.id, $event)">
         <span class="material-symbols-outlined">draft</span> {{ file.name }} 
         <span [class.d-block]="file.unsavedChanges === true" title="Unsaved changes" class="material-symbols-outlined">warning</span>
   </ul>
