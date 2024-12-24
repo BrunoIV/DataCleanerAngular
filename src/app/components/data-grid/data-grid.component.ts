@@ -193,7 +193,8 @@ export class DataGridComponent {
             }
           }
         }
-
+        
+        _this.deselectAll();
         _this.selectRows();
 
         if(colIndex > -1) {
@@ -231,6 +232,10 @@ export class DataGridComponent {
             for(let i = 0; i < _this.columnDefs.length; i++) {
               _this.selectedColumns.push(i);
             }
+
+            for(let i = 0; i < _this.rowData.length; i++) {
+              _this.selectedRows.push(i);
+            }
           } else {
             //Shift is pressed and there's previous row selected
             let numberOfSelectedColumns = _this.selectedColumns.length;
@@ -257,7 +262,9 @@ export class DataGridComponent {
           
           }
 
+          _this.deselectAll();
           _this.selectColumn();
+          _this.selectRows();
         }
       });
     });
@@ -283,7 +290,6 @@ export class DataGridComponent {
    * Selects all cells of the selectedRows
    */
   selectRows() {
-    this.deselectAll();
 
     this.selectedRows.forEach(function(rowIndex) {
       let container = document.querySelector('.ag-center-cols-container');
@@ -303,7 +309,6 @@ export class DataGridComponent {
    * @param colIndex - String with col index (starts in one)
    */
   selectColumn() {
-    this.deselectAll();
     const headers = document.querySelectorAll('.ag-header-cell');
     const cells = document.querySelectorAll('.ag-cell');
 
