@@ -1,0 +1,26 @@
+<h2 mat-dialog-title>{{ data.title }}</h2>
+<div mat-dialog-content>
+  <ng-container *ngFor="let field of data.fields">
+
+
+    <div class="py-2" *ngIf="field.type === 'number'">
+        <label class="input">
+            <span>{{field.label}}</span>
+            <input type="number" [name]="field.name" [(ngModel)]="field.value">
+        </label>
+    </div>
+
+    <div class="py-1" *ngIf="field.type === 'radio'">
+        <label>
+            <input class="me-2" [name]="field.name" type="radio" [attr.checked]="field.checked" [value]="field.value" [(ngModel)]="data.selectedOption">
+            <span>{{field.label}}</span>
+        </label>
+    </div>
+
+    
+</ng-container>
+</div>
+<div mat-dialog-actions>
+  <button mat-button (click)="data.onConfirm()">Confirm</button>
+  <button mat-button mat-dialog-close>Cancel</button>
+</div>

@@ -1,0 +1,12 @@
+.input {
+    width: 100%;
+}
+
+.input span {
+    width: 100px;
+    display: inline-block;
+}
+
+.input input {
+    width: calc(100% - 100px);
+}
