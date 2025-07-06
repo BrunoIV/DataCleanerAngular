@@ -73,5 +73,24 @@ export class DataService {
 
     return this.apiService.sendPost('data/normalize', params);
   }
+
+  zscore(columns: number[], idFile: number, min:number, max:number, remove: boolean): Observable<any>  {
+    const params = {
+      columns: columns.join(','),
+      idFile: idFile,
+      min: min,
+      max: max,
+      delete: remove
+    };
+
+    return this.apiService.sendPost('data/zscore', params);
+  }
+
+
+
+  getHistory(idFile: number): Observable<any> {
+    return this.apiService.sendGet('data/getHistory/' + idFile);
+  }
+
   
 }

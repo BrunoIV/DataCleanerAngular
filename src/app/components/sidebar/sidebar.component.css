@@ -17,6 +17,7 @@
     font-size: 12px;
     list-style-type: none;
     line-height: 26px;
+    border: 1px solid transparent;
 }
 
 #tab_files li span {
@@ -32,10 +33,22 @@
     padding-right: 10px;
 }  
 
+
+#tab_files li.border_right_selection {
+    border-color: var(--accent-bg-color);
+}
+
 #tab_files li.selected {
     background-color: var(--accent-bg-color);
     color: var(--accent-text-color);
 }
+
+#tab_files li:hover {
+    background-color: var(--accent-bg-color);
+    color: var(--accent-text-color);
+    cursor: pointer;
+}
+
 
 #tab_files button {
     background: #fcfcfc;
@@ -126,4 +139,34 @@
     font-size: 18px;
     font-weight: 300;
     margin: 0;
+}
+
+
+
+.dropdown-menu {
+    display: block;
+    position: absolute;
+    background-color: white;
+    min-width: 160px;
+    box-shadow: 0px 8px 16px rgba(0, 0, 0, 0.2);
+    z-index: 1;
+    padding: 0;
+    font-size: 12px;
+  }
+  
+  .dropdown-menu li {
+    padding: 6px 8px;
+    text-decoration: none;
+    display: block;
+    color: black;
+  }
+  
+
+.dropdown-menu li.disabled {
+    color: var(--border-color);
+}
+
+.dropdown-menu li:not(.disabled):hover {
+    background-color: var(--accent-bg-color);
+    color: var(--accent-text-color);
 }

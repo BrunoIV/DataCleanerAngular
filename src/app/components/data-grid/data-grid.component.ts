@@ -4,6 +4,7 @@ import { AgGridModule } from 'ag-grid-angular';
 import { DataService } from '../../services/data.service';
 import { StructureService } from '../../services/structure.service';
 import { Observable, tap } from 'rxjs';
+import { ToastService } from '../../services/toast.service';
 
 @Component({
   selector: 'data-grid',
@@ -17,6 +18,7 @@ export class DataGridComponent {
 
   constructor(
     private dataService: DataService,
+    private toastService: ToastService,
     private structureService: StructureService) {
   }
 
@@ -90,7 +92,7 @@ export class DataGridComponent {
     const selected :number[] = this.getSelectedRows();
 
     if(selected.length === 0) {
-      alert('Please, select at least one row');
+      this.toastService.warning('Please, select at least one row');
       return;
     }
 
@@ -100,7 +102,7 @@ export class DataGridComponent {
           this.setUnsavedChanges(true);
         },
         error: (error: any) => {
-          console.log(error);
+          this.toastService.error(error);
         }
       });
     }
@@ -110,7 +112,7 @@ export class DataGridComponent {
     const selected :number[] = this.getSelectedColumns();
 
     if(selected.length === 0) {
-      alert('Please, select at least one column');
+      this.toastService.warning('Please, select at least one column');
       return;
     }
     
@@ -121,7 +123,7 @@ export class DataGridComponent {
           this.setUnsavedChanges(true);
         },
         error: (error: any) => {
-          console.log(error);
+          this.toastService.error(error);
         }
       });
     }
@@ -361,7 +363,7 @@ export class DataGridComponent {
       next: (response: any) => {
       },
       error: (error: any) => {
-        console.log(error);
+        this.toastService.error(error);
       }
     });
   }
@@ -385,7 +387,7 @@ export class DataGridComponent {
         this.setUnsavedChanges(true);
       },
       error: (error: any) => {
-        console.log(error);
+        this.toastService.error(error);
       }
     });
   }
@@ -403,7 +405,7 @@ export class DataGridComponent {
     const selection = this.getSelectedRows();
     const selectedItems = selection.length;
     if(selectedItems === 0) {
-      alert('Please, select a row');
+      this.toastService.warning('Please, select a row');
     } else {
       this.addRowAtPosition(selection[selectedItems - 1]);
     }
@@ -413,7 +415,7 @@ export class DataGridComponent {
     const selection = this.getSelectedRows();
     const selectedItems = selection.length;
     if(selectedItems === 0) {
-      alert('Please, select a row');
+      this.toastService.warning('Please, select a row');
     } else {
       this.addRowAtPosition(selection[selectedItems - 1] + 1);
     }
@@ -431,7 +433,7 @@ export class DataGridComponent {
     const selection = this.getSelectedColumns();
     const selected = selection.length;
     if(selected === 0) {
-      alert('Please, select a column');
+      this.toastService.warning('Please, select a column');
     } else {
       this.addColumnAtPosition(selection[selected - 1]);
     }
@@ -441,13 +443,18 @@ export class DataGridComponent {
     const selection = this.getSelectedColumns();
     const selected = selection.length;
     if(selected === 0) {
-      alert('Please, select a column');
+      this.toastService.warning('Please, select a column');
     } else {
       this.addColumnAtPosition(selection[selected - 1] + 1);
     }
   }
 
-  addColumnAtPosition(position: number, ) {
+  addColumnAtPosition(position: number) {
+    if(this.idFile == 0) {
+      this.toastService.warning('There is no file open');
+      return;
+    }
+
     let name = prompt('Column name?');
 
     if(name !== null && name.trim() !== '') {
@@ -457,7 +464,7 @@ export class DataGridComponent {
           this.setUnsavedChanges(true);
         },
         error: (error: any) => {
-          console.log(error);
+          this.toastService.error(error);
         }
       });
     }
@@ -470,7 +477,7 @@ export class DataGridComponent {
         this.setUnsavedChanges(true);
       },
       error: (error: any) => {
-        console.log(error);
+        this.toastService.error(error);
       }
     });
   }
@@ -494,13 +501,18 @@ export class DataGridComponent {
   }
 
   joinColumn() {
+    if(this.selectedColumns.length < 2) {
+      this.toastService.warning('Please, select at least two columns');
+      return;
+    }
+
     this.structureService.joinColumns(this.selectedColumns.join(','), this.idFile).subscribe({
       next: (response: any) => {
         this.loadGridNoResponse(this.idFile);
         this.setUnsavedChanges(true);
       },
       error: (error: any) => {
-        console.log(error);
+        this.toastService.error(error);
       }
     });
   }

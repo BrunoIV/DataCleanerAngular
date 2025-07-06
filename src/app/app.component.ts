@@ -7,16 +7,24 @@ import { SidebarComponent } from './components/sidebar/sidebar.component';
 import { DataService } from './services/data.service';
 import { FileService } from './services/file.service';
 
+
+import { MatDialog } from '@angular/material/dialog';
+import { AppDialogComponent } from './components/app-dialog/app-dialog.component';
+import { ToastMessageComponent } from './components/toast-message/toast-message.component';
+import { ToastService } from './services/toast.service';
+
+
 @Component({
   selector: 'app-root',
   standalone: true,
-  imports: [CommonModule, RouterOutlet, DataGridComponent, SidebarComponent, RibbonMenuComponent],
+  imports: [CommonModule, RouterOutlet, DataGridComponent, SidebarComponent, RibbonMenuComponent, ToastMessageComponent],
   templateUrl: './app.component.html',
   styleUrl: './app.component.css'
 })
 export class AppComponent {
   @ViewChild(DataGridComponent) private gridComponent!: DataGridComponent;
   @ViewChild(SidebarComponent) private sidebarComponent!: SidebarComponent;
+  @ViewChild(ToastMessageComponent) private toast!: ToastMessageComponent;
 
   private selectedFile: number = 0;
   public unsavedChanges: boolean = false;
@@ -25,7 +33,62 @@ export class AppComponent {
   public historySelected: number = 0;
   public validationSelected :number = 0;
 
-  constructor(private dataService: DataService, private fileService: FileService) {
+  constructor(private dataService: DataService, 
+    private fileService: FileService, 
+    private toastService: ToastService, 
+    public dialog: MatDialog) {
+  }
+
+
+  showSuccessMessage() {
+    this.toastService.success('Operation completed successfully!');
+  }
+
+  openDialogZscore(): void {
+    const columns:number[] = this.gridComponent.getSelectedColumns();
+    if(!columns.length) {
+      this.toastService.warning('Please, select at least one column');
+      return
+    }
+
+    const dialogRef = this.dialog.open(AppDialogComponent, {
+      width: '330px',
+      data: {
+        title: 'Z-Score',
+        selectedOption: 1,
+        fields: [
+          {name: 'min', type: 'number', label: 'Min Value: ', required: true, value: 0 },
+          {name: 'max', type: 'number', label: 'Max Value: ', required: true, value: 100 },
+          {name: 'removeModify', type: 'radio', label: 'Modify values to fit the range', value: 1},
+          {name: 'removeModify', type: 'radio', label: 'Remove values outside the range', value: 2 }
+        ],
+        
+        onConfirm: () => {
+          this.dataService.zscore(columns, this.selectedFile, 0, 100, false).subscribe({
+            next: (response: any) => {
+              this.unsavedChanges = response.unsavedChanges;
+              this.loadFile(this.selectedFile);
+            },
+            error: (error: any) => {
+              this.toastService.error(error);
+            }
+          });
+
+
+          console.log('Form data:', dialogRef.componentInstance.data);
+          console.log('Confirmed!');
+          dialogRef.close();
+        }
+      }
+    });
+
+    dialogRef.afterClosed().subscribe(result => {
+      console.log('The dialog was closed');
+    });
+  }
+
+  openDialogPercentile(): void {
+    this.showSuccessMessage();
   }
 
   loadFile(id: number) {
@@ -37,18 +100,18 @@ export class AppComponent {
         this.unsavedChanges = response.unsavedChanges;
       },
       error: (error: any) => {
-        console.log(error);
+        this.toastService.error(error);
       }
     });
   }
 
   loadHistory(id:number) {
-    this.fileService.getHistory(id).subscribe({
+    this.dataService.getHistory(id).subscribe({
       next: (response: any) => {
         this.historyList = response;
       },
       error: (error: any) => {
-        console.log(error);
+        this.toastService.error(error);
       }
     }); 
   }
@@ -62,7 +125,7 @@ export class AppComponent {
         this.validationSelected = 0;
       },
       error: (error: any) => {
-        console.log(error);
+        this.toastService.error(error);
       }
     });
   }
@@ -71,9 +134,10 @@ export class AppComponent {
     this.fileService.save(this.selectedFile).subscribe({
       next: (response: any) => {
         this.unsavedChanges = false;
+        this.sidebarComponent.loadFiles();
       },
       error: (error: any) => {
-        console.log(error);
+        this.toastService.error(error);
       }
     });
   }
@@ -88,7 +152,7 @@ export class AppComponent {
           this.sidebarComponent.loadFiles();
         },
         error: (error: any) => {
-          console.log(error);
+          this.toastService.error(error);
         }
       });
     }
@@ -103,7 +167,7 @@ export class AppComponent {
           this.sidebarComponent.loadFiles();
         },
         error: (error: any) => {
-          console.log(error);
+          this.toastService.error(error);
         }
       });
     }
@@ -112,16 +176,10 @@ export class AppComponent {
   
   private actionMap: { [key: string]: Function } = {
 
-    //Save
+    //File
+    new_file: () => this.doNewFile('table'),
     save_as: () => this.doSaveAs(),
     save: () => this.doSave(),
-
-    //Next
-    //new_list: () => this.doNewFile('list'),
-    //new_map: () => this.doNewFile('map'),
-    //new_table: () => this.doNewFile('table'),
-
-    //Import/Export
     import_: (id: string) => this.selectFile(id),
     export_: (format: string) => this.fileService.export(this.selectedFile, format),
     
@@ -145,14 +203,17 @@ export class AppComponent {
     normalization_: (fn: string) => this.normalize(fn),
     validation_: (fn: string) => this.validate(fn),
     fill_column_numbered: () => this.fillAutoIncremental(),
-    fill_fixed_value: () => this.fillFixedValue()
+    fill_fixed_value: () => this.fillFixedValue(),
+    outliners_zscore: () => this.openDialogZscore(),
+    outliners_percentile: () => this.openDialogPercentile(),
+
   };
 
 
   fillFixedValue() {
     const columns:number[] = this.gridComponent.getSelectedColumns();
     if(!columns.length) {
-      alert('Please, select at least one column');
+      this.toastService.warning('Please, select at least one column');
       return
     }
 
@@ -163,7 +224,7 @@ export class AppComponent {
           this.gridComponent.loadGridNoResponse(this.selectedFile);
         },
         error: (error: any) => {
-          console.log(error);
+          this.toastService.error(error);
         }
       });
     }
@@ -173,7 +234,7 @@ export class AppComponent {
   fillAutoIncremental() {
     const columns:number[] = this.gridComponent.getSelectedColumns();
     if(!columns.length) {
-      alert('Please, select at least one column');
+      this.toastService.warning('Please, select at least one column');
       return
     }
 
@@ -182,7 +243,7 @@ export class AppComponent {
         this.gridComponent.loadGridNoResponse(this.selectedFile);
       },
       error: (error: any) => {
-        console.log(error);
+        this.toastService.error(error);
       }
     });
   }
@@ -190,6 +251,7 @@ export class AppComponent {
   onUnsavedChanges(value: boolean): void {
     this.unsavedChanges = value;
     this.loadHistory(this.selectedFile);
+    this.sidebarComponent.loadFiles();
   }
 
   handleButtonClick(buttonId: string): void {
@@ -197,26 +259,34 @@ export class AppComponent {
       if (buttonId.startsWith(key)) {
         const parameter = buttonId.replace(key, '');
         this.actionMap[key](parameter);
-        this.loadHistory(this.selectedFile);
+
+        if(this.selectedFile > 0) {
+          this.loadHistory(this.selectedFile);
+        }
         return;
       }
     }
-    alert(buttonId + ' Not implemented');
+
+    this.toastService.error(buttonId + ' Not implemented');
   }
 
   validate(functionName: string): void {
     const columns:number[] = this.gridComponent.getSelectedColumns();
     if(!columns.length) {
-      alert('Please, select at least one column');
+      this.toastService.warning('Please, select at least one column');
       return
     }
 
     this.dataService.validate(columns, this.selectedFile, functionName).subscribe({
       next: (response: any) => {
         this.validationErrors = response;
+        const radio = document.getElementById('status_bar_validations') as HTMLInputElement;
+        if (radio) {
+          radio.checked = true;
+        }
       },
       error: (error: any) => {
-        console.log(error);
+        this.toastService.error(error);
       }
     });
   }
@@ -224,7 +294,7 @@ export class AppComponent {
   normalize(functionName: string): void {
     const columns:number[] = this.gridComponent.getSelectedColumns();
     if(!columns.length) {
-      alert('Please, select at least one column');
+      this.toastService.warning('Please, select at least one column');
       return
     }
 
@@ -233,7 +303,7 @@ export class AppComponent {
         this.gridComponent.loadGridNoResponse(this.selectedFile);
       },
       error: (error: any) => {
-        console.log(error);
+        this.toastService.error(error);
       }
     });
     
@@ -267,10 +337,10 @@ export class AppComponent {
       next: (response: any) => {
         this.gridComponent.rowData = response.values;
         this.gridComponent.columnDefs = response.header;
-        this.sidebarComponent.loadFiles(true);
+        this.sidebarComponent.loadFiles();
       },
       error: (error: any) => {
-        console.log(error);
+        this.toastService.error(error);
       }
     });
   }

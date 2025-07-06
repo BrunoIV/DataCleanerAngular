@@ -1,6 +1,7 @@
 import { CommonModule } from '@angular/common';
-import { Component, EventEmitter, Output } from '@angular/core';
+import { Component, EventEmitter, HostListener, Output } from '@angular/core';
 import { FileService } from '../../services/file.service';
+import { ToastService } from '../../services/toast.service';
 
 @Component({
   selector: 'sidebar',
@@ -12,7 +13,10 @@ import { FileService } from '../../services/file.service';
 export class SidebarComponent {
 
 
-  constructor(private fileService: FileService) {
+  constructor(
+    private fileService: FileService,
+    private toastService: ToastService
+  ) {
     this.loadFiles();
   }
 
@@ -24,6 +28,12 @@ export class SidebarComponent {
   public lateralTab = 'tab_files';
   public currentFile: number = 0;
   public selectedFiles: number[] = [];
+  public contextMenuIsOpen :boolean = false;
+  private x :number = 0;
+  private y:number = 0;
+  public idFileRightSelection: number = 0;
+
+
   public lateralIcons :any[] = [{
     id: 'tab_files',
     icon: 'draft'
@@ -32,6 +42,36 @@ export class SidebarComponent {
     icon: 'settings'*/
   }];
 
+
+  @HostListener('document:click', ['$event'])
+  onClickOutside(event: Event) {
+    this.contextMenuIsOpen = false;
+  }
+
+  onRightClickFile(event: MouseEvent, id: number) {
+    event.preventDefault();
+    event.stopPropagation();
+
+    //Right click on one of the selected files
+    if(this.selectedFiles.includes(id)) {
+      this.idFileRightSelection = 0;
+    } else {
+      this.idFileRightSelection = id;
+    }
+
+    this.x = event.clientX;
+    this.y = event.clientY;
+    this.contextMenuIsOpen = true;
+  }
+
+  onRightClick(event: MouseEvent) {
+    event.preventDefault();
+    this.idFileRightSelection = 0;
+
+    this.x = event.clientX;
+    this.y = event.clientY;
+    this.contextMenuIsOpen = true;
+  }
 
   searchFile(event: Event): void {
     this.search = (event.target as HTMLInputElement).value;
@@ -54,26 +94,67 @@ export class SidebarComponent {
 
   newFile() {
     const fileName = prompt('Name of file?');
-    if(fileName !== null && fileName !== '') {
+    if(fileName !== null && fileName.trim() !== '') {
       this.fileService.newFile('table', fileName).subscribe({
         next: (response: any) => {
           this.loadFiles();
         },
         error: (error: any) => {
-          console.log(error);
+          this.toastService.error(error);
         }
       });
     }
   }
 
-  deleteFile(){
-    if(confirm('Are you sure you want to delete this file(s)?')) {
-      this.fileService.deleteFiles(this.selectedFiles).subscribe({
+  cloneFile() {
+    this.fileService.cloneFile(this.getRealSelection()).subscribe({
+      next: (response: any) => {
+        this.loadFiles();
+      },
+      error: (error: any) => {
+        this.toastService.error(error);
+      }
+    });
+  }
+
+  renameFile() {
+    const fileName = prompt('Name of file?');
+
+    if(fileName !== null && fileName.trim() !== '') {
+      this.fileService.renameFile(this.getRealSelection()[0], fileName).subscribe({
         next: (response: any) => {
           this.loadFiles();
         },
         error: (error: any) => {
-          console.log(error);
+          this.toastService.error(error);
+        }
+      });
+    }
+  }
+
+  getRealSelection() :number[] {
+
+    //If the file selected with a right-click is part of the files selected with a left-click.
+    if(this.selectedFiles.includes(this.idFileRightSelection)) {
+      return this.selectedFiles;
+    }
+
+    return [this.idFileRightSelection];
+  }
+
+  deleteFile(){
+    if(this.getRealSelection().length === 0) {
+      this.toastService.warning('Please, select at least one file');
+      return;
+    }
+
+    if(confirm('Are you sure you want to delete this file(s)?')) {
+      this.fileService.deleteFiles(this.getRealSelection()).subscribe({
+        next: (response: any) => {
+          this.loadFiles();
+        },
+        error: (error: any) => {
+          this.toastService.error(error);
         }
       });
     }
@@ -87,9 +168,16 @@ export class SidebarComponent {
         this.filterFiles();
       },
       error: (error: any) => {
-        console.log(error);
+        this.toastService.error(error);
       }
     });
+  }
+
+  showContextMenu() {
+    return {
+      top: this.y + 'px',
+      left: this.x + 'px'
+    }
   }
 
   openFile(index: number, event: MouseEvent) {

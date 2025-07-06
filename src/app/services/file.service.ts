@@ -16,8 +16,8 @@ export class FileService {
     return this.apiService.sendPostJson('file/import/' + format, formData);
   }
 
-  deleteFile(idFile: number): Observable<any> {
-    return this.apiService.sendPost('file/deleteFile', {id: idFile});
+  deleteFiles(idsFile: number[]): Observable<any> {
+    return this.apiService.sendPost('file/deleteFile', {ids: idsFile.join(',')});
   }
 
   getFiles(): Observable<any> {
@@ -36,11 +36,15 @@ export class FileService {
     return this.apiService.sendPost('file/new', {type: type, name: name});
   }
 
-  getHistory(idFile: number): Observable<any> {
-    return this.apiService.sendGet('file/getHistory/' + idFile);
-  }
-
   export(idFile: number, format: string) {
     window.open('http://localhost:8080/file/export/' + format + '/' + idFile, '_blank')
+  }
+
+  cloneFile(idsFile: number[]): Observable<any> {
+    return this.apiService.sendPost('file/clone', {ids: idsFile.join(',')});
+  }
+
+  renameFile(idFile: number, name: string): Observable<any> {
+    return this.apiService.sendPost('file/rename', {id: idFile, name: name});
   }
 }

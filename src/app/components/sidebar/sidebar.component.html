@@ -1,3 +1,10 @@
+<ul *ngIf="contextMenuIsOpen" class="dropdown-menu" [ngStyle]="showContextMenu()">
+  <li (click)="newFile()">New</li>
+  <li [class.disabled]="selectedFiles.includes(idFileRightSelection) && selectedFiles.length !== 1" (click)="cloneFile()">Clone</li>
+  <li [class.disabled]="selectedFiles.includes(idFileRightSelection) && selectedFiles.length !== 1" (click)="renameFile()">Rename</li>
+  <li [class.disabled]="idFileRightSelection === 0 && selectedFiles.length === 0" (click)="deleteFile()">Delete</li>
+</ul>
+  
 <div id="side_tabs">
     <span *ngFor="let icon of lateralIcons; let i = index" 
     [class.active]="lateralTab === icon.id" 
@@ -38,9 +45,10 @@
     </div>
   </header>
 
-  <ul>
-    <li *ngFor="let file of filteredFiles; let i = index"
+  <ul (contextmenu)="onRightClick($event)">
+    <li (contextmenu)="onRightClickFile($event, file.id)" *ngFor="let file of filteredFiles; let i = index"
         [class.selected]="selectedFiles.includes(file.id)"
+        [class.border_right_selection]="contextMenuIsOpen && file.id === idFileRightSelection"
         (click)="openFile(file.id, $event)">
         <span class="material-symbols-outlined">draft</span> {{ file.name }} 
         <span [class.d-block]="file.unsavedChanges === true" title="Unsaved changes" class="material-symbols-outlined">warning</span>
