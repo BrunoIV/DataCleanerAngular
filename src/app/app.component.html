@@ -1,3 +1,4 @@
+<toast-message #toast></toast-message>
 <div class="h-100 w-100 d-flex flex-column">
 
   <ribbon-menu [unsavedChanges]="unsavedChanges" (buttonClick)="handleButtonClick($event)"></ribbon-menu>
@@ -31,7 +32,7 @@
               
               <div [class.active]="i==validationSelected" (dblclick)="editCell(error.line, error.column)" (click)="validationSelected = i" *ngFor="let error of validationErrors; index as i">
                 <span class="material-symbols-outlined">error</span>
-                <span>{{error.error}} <small>:{{error.line + 1}}</small></span>
+                <span>{{error.error}} at line {{error.line + 1}}</span>
               </div>
             </div>
 
